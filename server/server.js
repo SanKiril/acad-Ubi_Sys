@@ -2,11 +2,11 @@ const http = require('http');
 const fs = require('fs');
 
 
-const PORT = 80;  // requires to be executed with elevated permissions (sudo node ./index.js)
-//const PORT = 8080;  // doesn't require elevated permissions (node ./index.js)
+const PORT = 80;  // requires to be executed with elevated permissions
+//const PORT = 8080;  // doesn't require elevated permissions
 
 
-const serveStaticFile = async (file) => {
+const serveFile = async (file) => {
   return new Promise((resolve, reject) => {
     fs.readFile(file, function(err, data) {
       if(err) reject(err);
@@ -15,9 +15,9 @@ const serveStaticFile = async (file) => {
   });
 }
 
-const saveStaticFile = async (file, data) => {
+const saveFile = async (file, data) => {
   return new Promise((resolve, reject) => {
-    fs.writeFile(file, data, function(err, data) {
+    fs.writeFile(file, data, function(err) {
       if (err) reject(err);
       resolve();
     });
@@ -26,50 +26,46 @@ const saveStaticFile = async (file, data) => {
 
 const readData = (request) => {
   return new Promise((resolve, reject) => {
-    let data = "";
-    request.on("data", (chunk) => {
+    let data = '';
+    request.on('data', (chunk) => {
       data += chunk.toString();
     });
-    request.on("end", () => {
+    request.on('end', () => {
       resolve(data);
     });
-    request.on("error", (err) => {
+    request.on('error', (err) => {
       reject(err);
     });
   });
 }
 
 const sendResponse = (response, content, contentType) => {
-  response.writeHead(200, {"Content-Type": contentType});
+  response.writeHead(200, {'Content-Type': contentType});
   response.end(content);
 }
 
 const handleRequest = async (request, response) => {
   const url = request.url;
 
-  if (request.method === "GET") {
+  if (request.method === 'GET') {
     let content;
     let contentType;
     switch(url) {
-      case "/":
-      case "/index.html":
-        content = await serveStaticFile("www/index.html");
-        contentType = "text/html";
+      case '/':
+      case '/client.html':
+        content = await serveFile('../web/client.html');
+        contentType = 'text/html';
         break;
-      case "/script.js":
-        content = await serveStaticFile("www/script.js");
-        contentType = "text/javascript";
+      case '/clerk.html':
+        content = await serveFile('../web/clerk.html');
+        contentType = 'text/html';
         break;
-      case "/style.css":
-        content = await serveStaticFile("www/style.css");
-        contentType = "text/css";
-        break;
-      case "/tasks/get":
-        content = await serveStaticFile("tasks.json");
-        contentType = "application/json";
+      case '/data/get':
+        content = await serveFile('data.json');
+        contentType = 'application/json';
         break;
       default:
-        response.writeHead(404, {"Content-Type": "text/html"});
+        response.writeHead(404, {'Content-Type': 'text/html'});
         response.write('404 Page Not Found');
         response.end();
     }
@@ -78,20 +74,20 @@ const handleRequest = async (request, response) => {
       sendResponse(response, content, contentType);
     }
   }
-  else if (request.method === "POST") {
+  else if (request.method === 'POST') {
     switch(url) {
-      case "/tasks/update":
+      case '/data/update':
         const data = await readData(request);
-        saveStaticFile("tasks.json", data);
+        saveFile('data.json', data);
         break;
       default:
-        response.writeHead(404, {"Content-Type": "text/html"});
+        response.writeHead(404, {'Content-Type': 'text/html'});
         response.write('404 Page Not Found');
         response.end();
     }
   }
   else {
-    response.writeHead(405, {"Content-Type": "text/html"});
+    response.writeHead(405, {'Content-Type': 'text/html'});
     response.write(`Method ${request.method} Not Allowed\n`);
     response.end();
   }
