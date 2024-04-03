@@ -78,7 +78,7 @@ const handleRequest = async (request, response) => {
     switch(url) {
       case '/data/update':
         const data = await readData(request);
-        saveFile('data.json', data);
+        saveFile('server/data.json', data);
         break;
       default:
         response.writeHead(404, {'Content-Type': 'text/html'});
