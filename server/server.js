@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 
 
-const PORT = 80;  // requires to be executed with elevated permissions
+const PORT = 8080;  // requires to be executed with elevated permissions
 //const PORT = 8080;  // doesn't require elevated permissions
 
 
@@ -50,22 +50,22 @@ const handleRequest = async (request, response) => {
   if (request.method === 'GET') {
     let content;
     let contentType;
+    console.log(url);
     switch(url) {
       case '/':
+      case '/web/client.html':
       case '/client.html':
         content = await serveFile('web/client.html');
         contentType = 'text/html';
         break;
+      case '/web/clerk.html':
       case '/clerk.html':
         content = await serveFile('web/clerk.html');
         contentType = 'text/html';
         break;
+      case '/web/style.css':
       case "/style.css":
         content = await serveFile("web/style.css");
-        contentType = "text/css";
-        break;
-      case url.startsWith('./media/'):
-        content = await serveFile(url);
         contentType = "text/css";
         break;
       case '/data/get':
@@ -73,6 +73,12 @@ const handleRequest = async (request, response) => {
         contentType = 'application/json';
         break;
       default:
+        if (url.startsWith('/media')){
+          console.log("access to media folder\n");
+          content = await serveFile(url.substring(1));
+          contentType = "image/png";
+          break;
+        }
         response.writeHead(404, {'Content-Type': 'text/html'});
         response.write('404 Page Not Found');
         response.end();
