@@ -60,6 +60,14 @@ const handleRequest = async (request, response) => {
         content = await serveFile('web/clerk.html');
         contentType = 'text/html';
         break;
+      case "/style.css":
+        content = await serveFile("web/style.css");
+        contentType = "text/css";
+        break;
+      case url.startsWith('./media/'):
+        content = await serveFile(url);
+        contentType = "text/css";
+        break;
       case '/data/get':
         content = await serveFile('server/data.json');
         contentType = 'application/json';
