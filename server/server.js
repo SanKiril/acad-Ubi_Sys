@@ -50,7 +50,6 @@ const handleRequest = async (request, response) => {
   if (request.method === 'GET') {
     let content;
     let contentType;
-    console.log(url);
     switch(url) {
       case '/':
       case '/web/client.html':
@@ -73,9 +72,8 @@ const handleRequest = async (request, response) => {
         contentType = 'application/json';
         break;
       default:
-        if (url.startsWith('/media')){
-          console.log("access to media folder\n");
-          content = await serveFile(url.substring(1));
+        if (url.endsWith('.png')) {
+          content = await serveFile("media" + url);
           contentType = "image/png";
           break;
         }
