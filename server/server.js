@@ -53,15 +53,15 @@ const handleRequest = async (request, response) => {
     switch(url) {
       case '/':
       case '/client.html':
-        content = await serveFile('../web/client.html');
+        content = await serveFile('web/client.html');
         contentType = 'text/html';
         break;
       case '/clerk.html':
-        content = await serveFile('../web/clerk.html');
+        content = await serveFile('web/clerk.html');
         contentType = 'text/html';
         break;
       case '/data/get':
-        content = await serveFile('data.json');
+        content = await serveFile('server/data.json');
         contentType = 'application/json';
         break;
       default:
