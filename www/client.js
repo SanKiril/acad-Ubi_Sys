@@ -29,7 +29,7 @@ const loadProducts = () => {
 
 const loadFooter = () => {
     // footer
-    const footer = document.createElement("footer");
+    const footer = document.querySelector("footer");
     document.body.appendChild(footer);
 
     // add favourites
@@ -53,6 +53,10 @@ const loadMainMenu = async () => {
     products = await response.json();
     loadProducts();
     loadFooter();
+}
+
+const loadProductInfo = () => {
+    // TODO
 }
 
 loadMainMenu();
