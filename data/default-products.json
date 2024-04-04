@@ -1,0 +1,8 @@
+[
+    {"name":"Beef","image":"item-beef.png","favourite":false,"cart":false,"order":0},
+    {"name":"Eggs","image":"item-eggs.png","favourite":false,"cart":false,"order":0},
+    {"name":"Flour","image":"item-flour.png","favourite":false,"cart":false,"order":0},
+    {"name":"Milk","image":"item-milk.png","favourite":false,"cart":false,"order":0},
+    {"name":"Olive","image":"item-olive.png","favourite":false,"cart":false,"order":0},
+    {"name":"Salmon","image":"item-salmon.png","favourite":false,"cart":false,"order":0}
+]
