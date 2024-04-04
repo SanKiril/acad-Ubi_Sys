@@ -4,18 +4,30 @@ let favouritesList;
 let cartList;
 let products = [];
 
-const loadProducts = () => {
-    // products list
-    if (!productsList) {
-        productsList = document.createElement("ul");
-        productsList.classList.add("products-list");
-        
-        // add products to products list
-        products.forEach(product => {
+const loadList = (list, listType) => {
+    if (!list) {
+        list = document.createElement("ul");
+        list.classList.add("products-list");
+
+        // filter products
+        let filteredProducts;
+        switch (listType) {
+            case "favouritesList":
+                filteredProducts = products.filter(product => product.favourite);
+                break;
+            case "cartList":
+                filteredProducts = products.filter(product => product.cart);
+                break;
+            default:
+                filteredProducts = products;
+        }
+
+        // add products to list
+        filteredProducts.forEach(product => {
             // product item
             const productItem = document.createElement("li");
             productItem.classList.add("products-list-item");
-            productsList.appendChild(productItem);
+            list.appendChild(productItem);
 
             // product item image
             const productImage = document.createElement("img");
@@ -30,16 +42,16 @@ const loadProducts = () => {
         });
 
         // load product info
-        productsList.addEventListener("pointerdown", event => {
+        list.addEventListener("pointerdown", event => {
             const targetProduct = event.target.closest(".products-list-item");
             if (targetProduct) {
-                const index = Array.from(productsList.children).indexOf(targetProduct);
+                const index = Array.from(list.children).indexOf(targetProduct);
                 const product = products[index];
                 loadProductInfo(product);
             }
         });
     }
-    main_body.appendChild(productsList);
+    main_body.appendChild(list);
 }
 
 const loadFavourites = () => {
@@ -47,40 +59,7 @@ const loadFavourites = () => {
     main_body.innerHTML = "";
 
     // favourites list
-    if (!favouritesList) {
-        favouritesList = document.createElement("ul");
-        favouritesList.classList.add("products-list");
-
-        // add products to favourites list
-        products.filter(product => product.favourite).forEach(product => {
-            // product item
-            const productItem = document.createElement("li");
-            productItem.classList.add("products-list-item");
-            favouritesList.appendChild(productItem);
-
-            // product item image
-            const productImage = document.createElement("img");
-            productImage.src = product.image;
-            productImage.alt = product.name;
-            productItem.appendChild(productImage);
-
-            // product item name
-            const productName = document.createElement("p");
-            productName.innerHTML = product.name;
-            productItem.appendChild(productName);
-        });
-
-        // load product info
-        productsList.addEventListener("pointerdown", event => {
-            const targetProduct = event.target.closest(".products-list-item");
-            if (targetProduct) {
-                const index = Array.from(productsList.children).indexOf(targetProduct);
-                const product = products[index];
-                loadProductInfo(product);
-            }
-        });
-    }
-    main_body.appendChild(favouritesList);
+    loadList(favouritesList, "favouritesList");
 }
 
 const loadCart = () => {
@@ -88,44 +67,12 @@ const loadCart = () => {
     main_body.innerHTML = "";
 
     // cart list
-    if (!cartList) {
-        cartList = document.createElement("ul");
-        cartList.classList.add("products-list");
-    
-        // add products to cart list
-        products.filter(product => product.cart).forEach(product => {
-            // product item
-            const productItem = document.createElement("li");
-            productItem.classList.add("products-list-item");
-            cartList.appendChild(productItem);
-
-            // product item image
-            const productImage = document.createElement("img");
-            productImage.src = product.image;
-            productImage.alt = product.name;
-            productItem.appendChild(productImage);
-
-            // product item name
-            const productName = document.createElement("p");
-            productName.innerHTML = product.name;
-            productItem.appendChild(productName);
-        });
-
-        // load product info
-        productsList.addEventListener("pointerdown", event => {
-            const targetProduct = event.target.closest(".products-list-item");
-            if (targetProduct) {
-                const index = Array.from(productsList.children).indexOf(targetProduct);
-                const product = products[index];
-                loadProductInfo(product);
-            }
-        });
-    }
-    main_body.appendChild(cartList);
+    loadList(cartList, "cartList");
 }
 
 const loadProductInfo = (product) => {
-    // TODO
+    // clear main body
+    main_body.innerHTML = "";
 }
 
 const loadFooter = () => {
@@ -138,18 +85,22 @@ const loadFooter = () => {
     favourites.src = "icon-favourites.png";
     favourites.alt = "Favourites";
     footer.appendChild(favourites);
+
+    // load favourites
     favourites.addEventListener("pointerdown", event => {
         loadFavourites();
-    });  // load favourites
+    });
 
     // add cart
     const cart = document.createElement("img");
     cart.src = "icon-cart.png";
     cart.alt = "Cart";
     footer.appendChild(cart);
+
+    // load cart
     cart.addEventListener("pointerdown", event => {
         loadCart();
-    });  // load cart
+    });
 }
 
 const loadMain = async () => {
@@ -163,7 +114,7 @@ const loadMain = async () => {
         loadFooter();
     }
 
-    loadProducts();
+    loadList(productsList, "productsList");
 }
 
 loadMain();
