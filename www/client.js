@@ -58,6 +58,9 @@ const loadFavourites = () => {
     // clear main body
     main_body.innerHTML = "";
 
+    // rename header
+    loadHeader("Favourites");
+
     // favourites list
     loadList(favouritesList, "favouritesList");
 }
@@ -66,6 +69,9 @@ const loadCart = () => {
     // clear main body
     main_body.innerHTML = "";
 
+    // rename header
+    loadHeader("Cart");
+
     // cart list
     loadList(cartList, "cartList");
 }
@@ -73,12 +79,30 @@ const loadCart = () => {
 const loadProductInfo = (product) => {
     // clear main body
     main_body.innerHTML = "";
+
+    // rename header
+    loadHeader("Product Info");
+}
+
+const loadHeader = (name) => {
+    // header
+    const header = document.querySelector("header");
+    const title = document.querySelector("h1");
+
+    // load main
+    if (title.innerHTML === "") {
+        header.addEventListener("pointerdown", () => {
+            loadMain();
+        });
+    }
+
+    // name header
+    title.innerHTML = name;
 }
 
 const loadFooter = () => {
     // footer
     const footer = document.querySelector("footer");
-    document.body.appendChild(footer);
 
     // add favourites
     const favourites = document.createElement("img");
@@ -87,7 +111,7 @@ const loadFooter = () => {
     footer.appendChild(favourites);
 
     // load favourites
-    favourites.addEventListener("pointerdown", event => {
+    favourites.addEventListener("pointerdown", () => {
         loadFavourites();
     });
 
@@ -98,7 +122,7 @@ const loadFooter = () => {
     footer.appendChild(cart);
 
     // load cart
-    cart.addEventListener("pointerdown", event => {
+    cart.addEventListener("pointerdown", () => {
         loadCart();
     });
 }
@@ -107,6 +131,9 @@ const loadMain = async () => {
     // clear main body
     main_body.innerHTML = "";
     
+    // rename header
+    loadHeader("Products");
+
     // fetch products
     if (products.length === 0) {
         const response = await fetch("products.json");
