@@ -1,0 +1,32 @@
+{
+  "name": "acad-ubi_sys",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "debug": "^4.3.4",
+    "engine.io-client": "^6.5.3",
+    "engine.io-parser": "^5.2.2",
+    "express": "^4.19.2",
+    "ms": "^2.1.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "socket.io-parser": "^4.2.4",
+    "ws": "^8.11.0",
+    "xmlhttprequest-ssl": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SanKiril/acad-Ubi_Sys.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SanKiril/acad-Ubi_Sys/issues"
+  },
+  "homepage": "https://github.com/SanKiril/acad-Ubi_Sys#readme"
+}
