@@ -1,57 +1,57 @@
 const main_body = document.querySelector("main");
-let productsList;
-let favouritesList;
-let cartList;
 let products = [];
 
-const loadList = (list, listType) => {
-    if (!list) {
-        list = document.createElement("ul");
-        list.classList.add("products-list");
-
-        // filter products
-        let filteredProducts;
-        switch (listType) {
-            case "favouritesList":
-                filteredProducts = products.filter(product => product.favourite);
-                break;
-            case "cartList":
-                filteredProducts = products.filter(product => product.cart);
-                break;
-            default:
-                filteredProducts = products;
-        }
-
-        // add products to list
-        filteredProducts.forEach(product => {
-            // product item
-            const productItem = document.createElement("li");
-            productItem.classList.add("products-list-item");
-            list.appendChild(productItem);
-
-            // product item image
-            const productImage = document.createElement("img");
-            productImage.src = product.image;
-            productImage.alt = product.name;
-            productItem.appendChild(productImage);
-
-            // product item name
-            const productName = document.createElement("p");
-            productName.innerHTML = product.name;
-            productItem.appendChild(productName);
-        });
-
-        // load product info
-        list.addEventListener("pointerdown", event => {
-            const targetProduct = event.target.closest(".products-list-item");
-            if (targetProduct) {
-                const index = Array.from(list.children).indexOf(targetProduct);
-                const product = products[index];
-                loadProductInfo(product);
-            }
-        });
-    }
+const loadList = (listType) => {
+    // list
+    list = document.createElement("ul");
+    list.classList.add("products-list");
     main_body.appendChild(list);
+
+    // filter products
+    let filteredProducts;
+    switch (listType) {
+        case "favouritesList":
+            filteredProducts = products.filter(product => product.favourite);
+            break;
+        case "cartList":
+            filteredProducts = products.filter(product => product.cart);
+            break;
+        default:
+            filteredProducts = products;
+    }
+
+    // add products to list
+    filteredProducts.forEach(product => {
+        // product item
+        const productItem = document.createElement("li");
+        productItem.classList.add("products-list-item");
+        list.appendChild(productItem);
+
+        // product item image
+        const productImage = document.createElement("img");
+        productImage.src = product.image;
+        productImage.alt = product.name;
+        productItem.appendChild(productImage);
+
+        // product item name
+        const productName = document.createElement("p");
+        productName.innerHTML = product.name;
+        productItem.appendChild(productName);
+    });
+
+    // load product info
+    list.addEventListener("pointerdown", event => {
+        const targetProduct = event.target.closest(".products-list-item");
+        if (targetProduct) {
+            const index = Array.from(list.children).indexOf(targetProduct);
+            const product = products[index];
+            loadProductInfo(product);
+        }
+    });
+
+    // toggle favourite
+    // ! TODO
+    //toggleFavourite(product);
 }
 
 const loadFavourites = () => {
@@ -62,7 +62,7 @@ const loadFavourites = () => {
     loadHeader("Favourites");
 
     // favourites list
-    loadList(favouritesList, "favouritesList");
+    loadList("favouritesList");
 }
 
 const loadCart = () => {
@@ -73,7 +73,7 @@ const loadCart = () => {
     loadHeader("Cart");
 
     // cart list
-    loadList(cartList, "cartList");
+    loadList("cartList");
 }
 
 const loadProductInfo = (product) => {
@@ -82,6 +82,8 @@ const loadProductInfo = (product) => {
 
     // rename header
     loadHeader("Product Info");
+
+    // ! TODO
 }
 
 const loadHeader = (name) => {
@@ -141,7 +143,11 @@ const loadMain = async () => {
         loadFooter();
     }
 
-    loadList(productsList, "productsList");
+    loadList("productsList");
+}
+
+const toggleFavourite = (product) => {
+    product.favourite = !product.favourite;
 }
 
 loadMain();
