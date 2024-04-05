@@ -1,5 +1,37 @@
 const main_body = document.querySelector("main");
+const MAX_FETCH_RETRIES = 3;
 let products = [];
+
+
+const fetchProducts = async (method) => {
+    // adjust fetch options
+    let options = {};
+    if (method === "send") {
+        options = {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(products)
+        };
+    }
+
+    // fetch products list
+    let retries = 0;
+    while(retries < MAX_FETCH_RETRIES) {
+        try {
+            const response = await fetch("products.json", options);
+            if (response.ok) {
+                return response;
+            }
+            else {
+                throw new Error("Failed to fetch products list");
+            }
+        }
+        catch (err) {
+            console.error("Error fetching products list:", err);
+            retries++;
+        }
+    }
+}
 
 const loadList = (listType) => {
     // list
@@ -136,9 +168,9 @@ const loadMain = async () => {
     // rename header
     loadHeader("Products");
 
-    // fetch products
+    // receive products list
     if (products.length === 0) {
-        const response = await fetch("products.json");
+        response = await fetchProducts("receive");
         products = await response.json();
         loadFooter();
     }
@@ -146,8 +178,12 @@ const loadMain = async () => {
     loadList("productsList");
 }
 
-const toggleFavourite = (product) => {
+const toggleFavourite = async (product) => {
+    // update products list
     product.favourite = !product.favourite;
+
+    // send products list
+    await fetchProducts("send");
 }
 
 loadMain();
