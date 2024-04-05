@@ -76,7 +76,7 @@ const loadList = (listType) => {
         const targetProduct = event.target.closest(".products-list-item");
         if (targetProduct) {
             const index = Array.from(list.children).indexOf(targetProduct);
-            const product = products[index];
+            const product = filteredProducts[index];
             loadProductInfo(product);
         }
     });
@@ -171,7 +171,7 @@ const loadMain = async () => {
     // receive products list
     if (products.length === 0) {
         response = await fetchProducts("receive");
-        products = await response.json();
+        response && (products = await response.json());
         loadFooter();
     }
 
