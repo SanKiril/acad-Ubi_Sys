@@ -89,6 +89,7 @@ const loadList = (listType) => {
 const loadFavourites = () => {
     // clear main body
     main_body.innerHTML = "";
+    document.getElementById("back_arrow").style.display = "block";
 
     // rename header
     loadHeader("Favourites");
@@ -100,7 +101,7 @@ const loadFavourites = () => {
 const loadCart = () => {
     // clear main body
     main_body.innerHTML = "";
-
+    document.getElementById("back_arrow").style.display = "block";
     // rename header
     loadHeader("Cart");
 
@@ -111,6 +112,7 @@ const loadCart = () => {
 const loadProductInfo = (product) => {
     // clear main body
     main_body.innerHTML = "";
+    document.getElementById("back_arrow").style.display = "block";
 
     // rename header
     loadHeader("Product Info");
@@ -125,7 +127,7 @@ const loadHeader = (name) => {
 
     // load main
     if (title.innerHTML === "") {
-        header.addEventListener("pointerdown", () => {
+        document.getElementById("back_arrow").addEventListener("pointerdown", () => {
             loadMain();
         });
     }
@@ -164,7 +166,7 @@ const loadFooter = () => {
 const loadMain = async () => {
     // clear main body
     main_body.innerHTML = "";
-    
+    document.getElementById("back_arrow").style.display = "none";
     // rename header
     loadHeader("Products");
 

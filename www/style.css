@@ -120,3 +120,10 @@ li
   padding: 10px;
   flex-grow: 1;
 }
+
+.back_button{
+  position: fixed;
+  left: 30%;
+  display: none;
+  width: 60px;
+}
