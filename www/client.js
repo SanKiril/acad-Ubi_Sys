@@ -188,4 +188,24 @@ const toggleFavourite = async (product) => {
     await fetchProducts("send");
 }
 
+const readNFC = async () => {
+    try {
+        const nfc = new NDEFReader();
+        await nfc.scan();
+        nfc.onreading = (event) => {
+            loadHeader("WORKS");
+        }
+        nfc.onerror = (err) => {
+            loadHeader("NO WORKS");
+            console.error("Error reading NFC token:", err);
+        }
+    } catch (err) {
+        loadHeader("NO WORKS");
+        console.error("Error initializing NFC:", err);
+    }
+}
+
+// Call the function to start NFC scanning
+readNFC();
+
 loadMain();
