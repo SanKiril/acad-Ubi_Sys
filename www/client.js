@@ -190,12 +190,12 @@ const toggleFavourite = async (product) => {
 
 const readNFC = async () => {
     try {
-        const nfc = new NDEFReader();
-        await nfc.scan();
-        nfc.onreading = (event) => {
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        ndef.onreading = (event) => {
             loadHeader("WORKS");
         }
-        nfc.onerror = (err) => {
+        ndef.onerror = (err) => {
             loadHeader("NO WORKS");
             console.error("Error reading NFC token:", err);
         }
