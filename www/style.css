@@ -123,7 +123,7 @@ li
 
 .back_button{
   position: fixed;
-  left: 30%;
+  left: 0;
   display: none;
   width: 60px;
 }
