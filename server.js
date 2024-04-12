@@ -4,8 +4,21 @@ const app = express();
 const server = require("http").Server(app);
 const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
+const chokidar = require('chokidar');
 
 app.use(bodyParser.json());
+
+const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js']; // Adjust filesToCheck
+// Function to reload the module
+function reloadModule() {
+  filesToCheck.forEach(filePath => {
+    delete require.cache[require.resolve(filePath)];
+  });
+  io.emit("reload");
+}
+// Watch for changes in the specific files
+const watcher = chokidar.watch(filesToCheck);
+watcher.on('change', reloadModule);
 
 // serve static files
 app.use(express.static("www"));
@@ -17,6 +30,7 @@ app.get('/', (_, res) => res.sendFile("client.html", { root: "www" }));
 
 // update files
 app.post('/products.json', (req, res) => {
+  console.log("Updated products.json file")
   fs.writeFile("data/products.json", JSON.stringify(req.body), (err) => {
     if (err) {
       console.error(err);
@@ -29,7 +43,7 @@ app.post('/products.json', (req, res) => {
 });
 
 io.on("connection", function(socket){
-  console.log("nuevo cliente");
+  console.log("Cliente recargado");
 
   socket.on("message_evt", function(message){
     console.log(socket.id, message);
