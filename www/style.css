@@ -14,13 +14,11 @@
 html
 {
   width: 100%;
-  height: fit-content;
 }
 
 body
 {
   width: 100%;
-  height: fit-content;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -45,7 +43,6 @@ header
 main
 {
   width: 100%;
-  min-height: var(--main-height);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -127,7 +124,7 @@ li
   flex-grow: 1;
 }
 
-.info-container
+.info-container, .form-product-info
 {
   width: 100%;
   height: fit-content;
@@ -136,9 +133,35 @@ li
   justify-content: center;
   font-size: 20px;
   padding: 20px;
-  background-color: whitesmoke;
   border-radius: 10px;
   gap: 10px;
+}
+
+.info-container
+{
+  background-color: whitesmoke;
+}
+
+.form-product-info input[type="text"], .form-product-info input[type="submit"], .form-product-info textarea
+{
+  width: 100%;
+  font-size: 20px;
+  padding: 15px;
+}
+
+.form-product-info input[type="text"], .form-product-info input[type="submit"]
+{
+  height: fit-content;
+}
+
+.form-product-info textarea
+{
+  height: 250px;
+}
+
+.form-product-info input::placeholder, .form-product-info textarea::placeholder
+{
+  font-size: 20px;
 }
 
 @keyframes blink {

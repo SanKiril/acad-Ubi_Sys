@@ -42,7 +42,7 @@ const loadList = (listType) => {
     // list
     const list = document.createElement("ul");
     list.classList.add("products-list");
-    utils.main_body.appendChild(list);
+    utils.mainBody.appendChild(list);
 
     // filter products
     let filteredProducts;
@@ -89,7 +89,7 @@ const loadList = (listType) => {
 
 const loadFavourites = () => {
     // clear main body
-    utils.main_body.innerHTML = "";
+    utils.mainBody.innerHTML = "";
 
     // rename header
     utils.loadHeader("Favourites");
@@ -100,7 +100,7 @@ const loadFavourites = () => {
 
 const loadCart = () => {
     // clear main body
-    utils.main_body.innerHTML = "";
+    utils.mainBody.innerHTML = "";
 
     // rename header
     utils.loadHeader("Cart");
@@ -111,8 +111,8 @@ const loadCart = () => {
 
 const loadProductInfo = (product) => {
     // clear main body
-    utils.main_body.innerHTML = "";
-    utils.main_body.appendChild(getProductInfoContent(product));
+    utils.mainBody.innerHTML = "";
+    utils.mainBody.appendChild(getProductInfoContent(product));
 
     // rename header
     utils.loadHeader("Product Info");
@@ -209,8 +209,11 @@ const loadFooter = () => {
     footer.appendChild(nfcReader);
 
     // read nfc
-    nfcReader.addEventListener("pointerdown", () => {
-        utils.loadNFC();
+    nfcReader.addEventListener("pointerdown", async () => {
+        const product = await utils.handleNFC("read");
+        if (product) {
+            loadProductInfo(product);
+        }
     });
 
     // add favourites
@@ -238,7 +241,7 @@ const loadFooter = () => {
 
 const loadMain = async () => {
     // clear main body
-    utils.main_body.innerHTML = "";
+    utils.mainBody.innerHTML = "";
 
     // rename header
     utils.loadHeader("Products");
