@@ -1,12 +1,12 @@
-const main_body = document.querySelector("main");
+import * as utils from "./utils.js";
+
 const MAX_FETCH_RETRIES = 3;
 let products = [];
-
 const socket = io();
 
 socket.on("reload", () => {
     window.location.reload();   
-})
+});
 
 const fetchProducts = async (method) => {
     // adjust fetch options
@@ -40,9 +40,9 @@ const fetchProducts = async (method) => {
 
 const loadList = (listType) => {
     // list
-    list = document.createElement("ul");
+    const list = document.createElement("ul");
     list.classList.add("products-list");
-    main_body.appendChild(list);
+    utils.main_body.appendChild(list);
 
     // filter products
     let filteredProducts;
@@ -85,17 +85,14 @@ const loadList = (listType) => {
             loadProductInfo(product);
         }
     });
-
-    // TODO: toggle favorites
 }
 
 const loadFavourites = () => {
     // clear main body
-    main_body.innerHTML = "";
-    document.getElementById("back_arrow").style.display = "block";
+    utils.main_body.innerHTML = "";
 
     // rename header
-    loadHeader("Favourites");
+    utils.loadHeader("Favourites");
 
     // favourites list
     loadList("favouritesList");
@@ -103,10 +100,10 @@ const loadFavourites = () => {
 
 const loadCart = () => {
     // clear main body
-    main_body.innerHTML = "";
-    document.getElementById("back_arrow").style.display = "block";
+    utils.main_body.innerHTML = "";
+
     // rename header
-    loadHeader("Cart");
+    utils.loadHeader("Cart");
 
     // cart list
     loadList("cartList");
@@ -114,14 +111,11 @@ const loadCart = () => {
 
 const loadProductInfo = (product) => {
     // clear main body
-    main_body.innerHTML = "";
-    main_body.appendChild(getProductInfoContent(product));
-    document.getElementById("back_arrow").style.display = "block";
+    utils.main_body.innerHTML = "";
+    utils.main_body.appendChild(getProductInfoContent(product));
 
     // rename header
-    loadHeader("Product Info");
-
-    // TODO add product info and add to cart button
+    utils.loadHeader("Product Info");
 }
 
 function getProductInfoContent(product) {
@@ -193,25 +187,31 @@ function toggle_buttons(buttons, product) {
     }
 }
 
-const loadHeader = (name) => {
-    // header
-    const header = document.querySelector("header");
-    const title = document.querySelector("h1");
-
-    // load main
-    if (title.innerHTML === "") {
-        document.getElementById("back_arrow").addEventListener("pointerdown", () => {
-            loadMain();
-        });
-    }
-
-    // name header
-    title.innerHTML = name;
-}
-
 const loadFooter = () => {
     // footer
     const footer = document.querySelector("footer");
+
+    // add search menu
+    const search = document.createElement("img");
+    search.src = "icon-search.png";
+    search.alt = "Search";
+    footer.appendChild(search);
+
+    // load main
+    search.addEventListener("pointerdown", () => {
+        loadMain();
+    });
+
+    // add nfc reader
+    const nfcReader = document.createElement("img");
+    nfcReader.src = "icon-nfc.png";
+    nfcReader.alt = "NFC Reader";
+    footer.appendChild(nfcReader);
+
+    // read nfc
+    nfcReader.addEventListener("pointerdown", () => {
+        utils.loadNFC();
+    });
 
     // add favourites
     const favourites = document.createElement("img");
@@ -238,16 +238,15 @@ const loadFooter = () => {
 
 const loadMain = async () => {
     // clear main body
-    main_body.innerHTML = "";
-    document.getElementById("back_arrow").style.display = "none";
+    utils.main_body.innerHTML = "";
+
     // rename header
-    loadHeader("Products");
+    utils.loadHeader("Products");
 
     // receive products list
     if (products.length === 0) {
-        response = await fetchProducts("receive");
+        const response = await fetchProducts("receive");
         response && (products = await response.json());
-        loadFooter();
     }
 
     loadList("productsList");
@@ -261,24 +260,5 @@ const toggleFavourite = async (product) => {
     await fetchProducts("send");
 }
 
-const readNFC = async () => {
-    try {
-        const ndef = new NDEFReader();
-        await ndef.scan();
-        ndef.onreading = (event) => {
-            loadHeader("WORKS");
-        }
-        ndef.onerror = (err) => {
-            loadHeader("NO WORKS");
-            console.error("Error reading NFC token:", err);
-        }
-    } catch (err) {
-        loadHeader("NO WORKS");
-        console.error("Error initializing NFC:", err);
-    }
-}
-
-// Call the function to start NFC scanning
-readNFC();
-
 loadMain();
+loadFooter();
