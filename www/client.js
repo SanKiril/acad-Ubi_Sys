@@ -55,19 +55,60 @@ const loadList = (listType) => {
             break;
         default:
             filteredProducts = products;
+
     }
+    filteredProducts.sort((a, b) => b.order - a.order);
+    console.log(products);
 
     // add products to list
     filteredProducts.forEach(product => {
         // product item
         const productItem = document.createElement("li");
         productItem.classList.add("products-list-item");
+        productItem.id = product.name;
+        productItem.draggable = true;
         list.appendChild(productItem);
 
+        productItem.addEventListener("dragstart", (event) => {
+            event.dataTransfer.setData("text/plain", event.target.id);
+        })
+        productItem.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        })
+
+        productItem.addEventListener("drop", (event) => {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedObject = document.getElementById(data);
+            const dropZone = event.target.alt || event.target.getData("text") || event.target.id;
+            let dragged_order;
+            let new_order;
+            products.forEach(element => {
+                if (dropZone == element.name){
+                    console.log(element, element.order);
+                    new_order = element.order;
+                }
+                else if (draggedObject.id == element.name){
+                    console.log(element, element.order);
+                    dragged_order = element.order;
+                }
+            });
+            products.forEach(element => {
+                if (dropZone == element.name){
+                    element.order = dragged_order;
+                }
+                else if (draggedObject.id == element.name){
+                    element.order = new_order;
+                }
+            });
+            utils.mainBody.innerHTML = "";
+            loadList();
+        })
         // product item image
         const productImage = document.createElement("img");
         productImage.src = product.image;
         productImage.alt = product.name;
+        productImage.draggable = false;
         productItem.appendChild(productImage);
 
         // product item name
