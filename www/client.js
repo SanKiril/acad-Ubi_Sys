@@ -42,6 +42,7 @@ const loadList = (listType) => {
     // list
     const list = document.createElement("ul");
     list.classList.add("products-list");
+    list.style.userSelect = "none";
     utils.mainBody.appendChild(list);
 
     // filter products
@@ -81,17 +82,43 @@ const loadList = (listType) => {
     let endY = NaN;
     let fisrtClick = false;
     let firstTarget = null;
+    let pressStartTime = 0;
     let timeoutId; 
+
+    list.addEventListener("contextmenu", event => {
+        event.preventDefault(); // Evita que se abra el menú contextual
+        event.stopPropagation();
+    });
 
     list.addEventListener("pointerdown", event => {
         startY = event.clientY;
+        pressStartTime = Date.now();
+        firstTarget = event.target.closest(".products-list-item");
+    });
+
+    // clean variables
+    list.addEventListener("pointerup", event => {
         const targetProduct = event.target.closest(".products-list-item");
+        const pressDuration = Date.now() - pressStartTime;
         if (firstTarget == targetProduct && fisrtClick == true) {
+            console.log("holia")
             const index = Array.from(list.children).indexOf(targetProduct);
             const product = filteredProducts[index];
             toggleFavourite(product);
             fisrtClick = false;
             clearTimeout(timeoutId);
+            if (listType == "favouritesList") {
+                loadFavourites();
+            }
+        } else if (pressDuration > 1000) {
+            if (targetProduct) {
+                const index = Array.from(list.children).indexOf(targetProduct);
+                const product = filteredProducts[index];
+                toggleCart(product);
+                if (listType == "cartList") {
+                    loadCart();
+                }
+            }
         } else {
             timeoutId = setTimeout(() => {
                 if (isNaN(endY)) {
@@ -105,11 +132,6 @@ const loadList = (listType) => {
                 }           
             }, 400);
         }
-        firstTarget = targetProduct;
-    });
-
-    // clean variables
-    list.addEventListener("pointerup", event => {
         endY = NaN;
         if(fisrtClick == true) {
             startY = NaN;
@@ -119,13 +141,8 @@ const loadList = (listType) => {
 
     // obtain movment
     list.addEventListener("pointermove",event =>{
-        endY = event.clientY;
+        endY = event.clientY;  
     });
-
-    //para favoritos doble click toggle favorite
-
-    //para borrar desplizar togglecart 170px que sea visible
-
 }
 
 const loadFavourites = () => {
@@ -347,6 +364,16 @@ function handleDeviceMotion(event) {
                 loadCart();
             } else {
                 console.log("Operación cancelada. El carrito no se ha vaciado.");
+            }
+        } else if(document.querySelector("h1").innerHTML== "Favourites") {
+            const confirmation = confirm("¿Estás seguro de vaciar la lista de favoritos?");
+            if (confirmation) {
+                console.log("Se ha detectado una sacudida. Vaciar favoritos.");
+                products.forEach((product) => product.favourite = false);
+                console.log("favoritos vaciado");
+                loadFavourites();
+            } else {
+                console.log("Operación cancelada. La lista de favoritos no se ha vaciado.");
             }
         }
     }
