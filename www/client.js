@@ -169,20 +169,16 @@ function getProductInfoContent(product) {
     product_name_header.innerHTML = product["name"];
     product_info_div.appendChild(product_name_header);
 
-    let product_info_inner_div = document.createElement("div");
-    product_info_inner_div.id = "product_info_inner";
-
     let product_info_text = document.createElement("p");
     product_info_text.innerHTML = product["product_info"];
     product_info_text.style="white-space: pre-wrap;"
-    product_info_inner_div.appendChild(product_info_text);
+    product_info_div.appendChild(product_info_text);
 
     let product_info_image = document.createElement("img");
+    product_info_image.className = "product_info_image";
     product_info_image.src = product["image"];
     product_info_image.alt = product["name"];
-    product_info_inner_div.appendChild(product_info_image);
-
-    product_info_div.appendChild(product_info_inner_div);
+    product_info_div.appendChild(product_info_image);
 
     let buttons_div = document.createElement("div");
     buttons_div.className = "product_info_buttons_div";
@@ -191,8 +187,9 @@ function getProductInfoContent(product) {
     add_to_cart_button.className = "add_to_cart_button";
     buttons_div.appendChild(add_to_cart_button);
 
+    
     add_to_cart_button.addEventListener("click", () => {
-        product["cart"] = !product["cart"];
+        toggleCart(product);
         toggle_buttons([add_to_cart_button, favorite_button], product);
     });
 
@@ -201,13 +198,34 @@ function getProductInfoContent(product) {
     buttons_div.appendChild(favorite_button);
 
     favorite_button.addEventListener("click", () => {
-        product["favourite"] = !product["favourite"];
+        toggleFavourite(product);
         toggle_buttons([add_to_cart_button, favorite_button], product);
     });
 
     toggle_buttons([add_to_cart_button, favorite_button], product);
 
     product_info_div.appendChild(buttons_div);
+
+    var click_count = 0;
+    var timer;
+
+    product_info_div.addEventListener("pointerdown", () => {
+        click_count++;
+        if (click_count == 1) {
+            timer = setTimeout(() => {
+                click_count = 0;
+            }, 300);
+        } else if (click_count == 2) {
+            click_count = 0;
+            clearTimeout(timer);
+            toggleFavourite(product);
+            if (product["favourite"]) {
+                document.getElementById("added_to_favourites_image").style.visibility = "visible";
+                setTimeout(() => {document.getElementById("added_to_favourites_image").style.visibility = "hidden";}, 300);
+            }
+            toggle_buttons([add_to_cart_button, favorite_button], product);
+        }
+    })
     
     return product_info_div;
 }
