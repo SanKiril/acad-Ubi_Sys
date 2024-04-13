@@ -93,9 +93,7 @@ const loadList = (listType) => {
             fisrtClick = false;
             clearTimeout(timeoutId);
         } else {
-            console.log(endY,startY,fisrtClick)
             timeoutId = setTimeout(() => {
-                console.log(endY,startY,fisrtClick)
                 if (isNaN(endY)) {
                     endY = startY;
                 }
