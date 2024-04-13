@@ -77,13 +77,30 @@ const loadList = (listType) => {
     });
 
     // load product info
+    let startY = NaN;
+    let endY = NaN;
     list.addEventListener("pointerdown", event => {
-        const targetProduct = event.target.closest(".products-list-item");
-        if (targetProduct) {
-            const index = Array.from(list.children).indexOf(targetProduct);
-            const product = filteredProducts[index];
-            loadProductInfo(product);
-        }
+        startY = event.clientY;
+        setTimeout(() => {
+            const targetProduct = event.target.closest(".products-list-item");
+            if (targetProduct && (Math.abs(startY-endY)< 5 || isNaN(endY))) {// y si el desplazamiento es  mayor a xx?
+                const index = Array.from(list.children).indexOf(targetProduct);
+                const product = filteredProducts[index];
+                loadProductInfo(product);
+            }
+        },400);
+    });
+
+    // clean variables
+    list.addEventListener("pointerup",event => {
+        clearTimeout();
+        endY = NaN;
+        startY = NaN;
+    });
+
+    // obtain movment
+    list.addEventListener("pointermove",event =>{
+        endY = event.clientY;
     });
 }
 
@@ -159,6 +176,7 @@ function getProductInfoContent(product) {
 
     favorite_button.addEventListener("click", () => {
         product["favourite"] = !product["favourite"];
+        console.log(product)
         toggle_buttons([add_to_cart_button, favorite_button], product);
     });
 
@@ -181,6 +199,7 @@ function toggle_buttons(buttons, product) {
     if (product["favourite"]) {
         buttons[1].classList.add("favourite_button_active");
         buttons[1].classList.remove("favorite_button_inactive");
+        console.log("es favorito")
     } else {
         buttons[1].classList.add("favorite_button_inactive");
         buttons[1].classList.remove("favourite_button_active");

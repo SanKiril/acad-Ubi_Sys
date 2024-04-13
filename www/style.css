@@ -270,30 +270,14 @@ li
   background-color: red;
 }
 
-.favourite_button_active:hover {
-  background-color: rgb(77, 0, 0);
-}
-
 .favorite_button_inactive {
   background-color: rgb(77, 0, 0);
-}
-
-.favorite_button_inactive:hover {
-  background-color: red;
 }
 
 .add_to_cart_button_active {
   background-color: green;
 }
 
-.add_to_cart_button_active:hover {
-  background-color: rgb(0, 36, 0);
-}
-
 .add_to_cart_button_inactive {
   background-color: rgb(0, 36, 0);
-}
-
-.add_to_cart_button_inactive:hover {
-  background-color: green;
 }
