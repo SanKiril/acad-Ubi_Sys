@@ -79,29 +79,38 @@ const loadList = (listType) => {
     // load product info
     let startY = NaN;
     let endY = NaN;
+    let fisrtClick = false;
+    let firstTarget = null;
     list.addEventListener("pointerdown", event => {
         startY = event.clientY;
         setTimeout(() => {
             const targetProduct = event.target.closest(".products-list-item");
-            if (targetProduct && (Math.abs(startY-endY)< 5 || isNaN(endY))) {// y si el desplazamiento es  mayor a xx?
+            if (targetProduct && (Math.abs(startY-endY) < 5 || isNaN(endY))) {// y si el desplazamiento es  mayor a xx?
                 const index = Array.from(list.children).indexOf(targetProduct);
                 const product = filteredProducts[index];
+                fisrtClick = false;
                 loadProductInfo(product);
             }
-        },400);
+        }, 400);
     });
 
     // clean variables
-    list.addEventListener("pointerup",event => {
+    list.addEventListener("pointerup", event => {
         clearTimeout();
         endY = NaN;
         startY = NaN;
+        fisrtClick = true;
     });
 
     // obtain movment
     list.addEventListener("pointermove",event =>{
         endY = event.clientY;
     });
+
+    //para favoritos doble click toggle favorite
+
+    //para borrar desplizar togglecart 170px que sea visible
+
 }
 
 const loadFavourites = () => {
@@ -280,21 +289,12 @@ const toggleFavourite = async (product) => {
     await fetchProducts("send");
 }
 
-// Función para restablecer product.cart a false
-function resetCart() {
-    for (const product of products){
-        product.cart = false;
-    }
-};
+const toggleCart = async (product) => {
+    // update products list
+    product.cart = !product.cart;
 
-function findProductByName(name) {
-    let product = false;
-    for (const prd of products) {
-        if (prd.name == name){
-            return prd
-        }
-    }
-    return product;
+    // send products list
+    await fetchProducts("send");
 }
 
 // Función para manejar el evento de movimiento del dispositivo
@@ -305,21 +305,11 @@ function handleDeviceMotion(event) {
 
     const shakeThreshold = 25; 
     if (accelerationTotal > shakeThreshold) {
-        if(document.querySelector("h1").innerHTML== "Cart") {
+        if(document.querySelector("h1").innerHTML== "Cart") { //  meter confirmacion estas seguro?  duplicar para favoritos
             console.log("Se ha detectado una sacudida. vaciando carrito.");
-            resetCart();
+            products.forEach((product) => product.cart = false);
             console.log("carrito recarga")
             loadCart();
-        } else if (document.querySelector("h1").innerHTML== "Product Info") {
-            console.log("se ha detectado sacudida. quitando producto del carrito.")
-            let product_name = utils.mainBody.querySelector("h1").innerHTML;
-            let product = findProductByName(product_name);
-            product.cart = false;
-            if (product != false) {
-                console.log("producto recargado")
-                loadProductInfo(product);
-            }
-            
         }
     }
 }
