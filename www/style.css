@@ -196,7 +196,8 @@ li
 #product_info {
   display: flex;
   flex-flow: column nowrap;
-  align-items: start;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   min-height: 100%;
   flex-grow: 0;
@@ -218,8 +219,8 @@ li
 .product_info_image {
   flex-shrink: 1;
   flex-grow: 1;
-  max-width: 100%;
-  height: auto;
+  max-height: 30%;
+  width: auto;
 }
 
 .product_info_buttons_div {
