@@ -176,7 +176,6 @@ function getProductInfoContent(product) {
 
     favorite_button.addEventListener("click", () => {
         product["favourite"] = !product["favourite"];
-        console.log(product)
         toggle_buttons([add_to_cart_button, favorite_button], product);
     });
 
@@ -199,7 +198,6 @@ function toggle_buttons(buttons, product) {
     if (product["favourite"]) {
         buttons[1].classList.add("favourite_button_active");
         buttons[1].classList.remove("favorite_button_inactive");
-        console.log("es favorito")
     } else {
         buttons[1].classList.add("favorite_button_inactive");
         buttons[1].classList.remove("favourite_button_active");
