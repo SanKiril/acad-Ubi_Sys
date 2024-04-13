@@ -280,5 +280,52 @@ const toggleFavourite = async (product) => {
     await fetchProducts("send");
 }
 
+// Función para restablecer product.cart a false
+function resetCart() {
+    for (const product of products){
+        product.cart = false;
+    }
+};
+
+function findProductByName(name) {
+    let product = false;
+    for (const prd of products) {
+        if (prd.name == name){
+            return prd
+        }
+    }
+    return product;
+}
+
+// Función para manejar el evento de movimiento del dispositivo
+function handleDeviceMotion(event) {
+    const acceleration = event.acceleration;
+    const accelerationTotal = Math.sqrt(acceleration.x**2 + acceleration.y**2 + acceleration.z**2);
+    if (!acceleration) return;
+
+    const shakeThreshold = 25; 
+    if (accelerationTotal > shakeThreshold) {
+        if(document.querySelector("h1").innerHTML== "Cart") {
+            console.log("Se ha detectado una sacudida. vaciando carrito.");
+            resetCart();
+            console.log("carrito recarga")
+            loadCart();
+        } else if (document.querySelector("h1").innerHTML== "Product Info") {
+            console.log("se ha detectado sacudida. quitando producto del carrito.")
+            let product_name = utils.mainBody.querySelector("h1").innerHTML;
+            let product = findProductByName(product_name);
+            product.cart = false;
+            if (product != false) {
+                console.log("producto recargado")
+                loadProductInfo(product);
+            }
+            
+        }
+    }
+}
+
+// Agregar un event listener para el evento devicemotion
+window.addEventListener("devicemotion", handleDeviceMotion);
+
 loadMain();
 loadFooter();
