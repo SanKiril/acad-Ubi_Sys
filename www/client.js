@@ -400,7 +400,11 @@ function handleDeviceMotion(event) {
             const confirmation = confirm("¿Estás seguro de vaciar el carrito?");
             if (confirmation) {
                 console.log("Se ha detectado una sacudida. Vaciar carrito.");
-                products.forEach((product) => product.cart = false);
+                products.forEach((product) => {
+                    if (product.cart) {
+                        toggleCart(product);
+                    }
+                });
                 console.log("Carrito vaciado");
                 loadCart();
             } else {
@@ -410,7 +414,11 @@ function handleDeviceMotion(event) {
             const confirmation = confirm("¿Estás seguro de vaciar la lista de favoritos?");
             if (confirmation) {
                 console.log("Se ha detectado una sacudida. Vaciar favoritos.");
-                products.forEach((product) => product.favourite = false);
+                products.forEach((product) => {
+                    if (product.favourite) {
+                        toggleFavourite(product);
+                    }
+                });
                 console.log("favoritos vaciado");
                 loadFavourites();
             } else {
