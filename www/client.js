@@ -121,13 +121,19 @@ const loadList = (listType) => {
     // load product info
     let startY = NaN;
     let endY = NaN;
-    let fisrtClick = false;
+    let fisrtClick = 0;
     let firstTarget = null;
+    let timeoutId;
+    let pressTimeout;
     let pressStartTime = 0;
-    let timeoutId; 
 
     list.addEventListener("contextmenu", event => {
         event.preventDefault(); // Evita que se abra el menú contextual
+        event.stopPropagation();
+    });
+
+    list.addEventListener("touchstart", event => {
+        event.preventDefault(); // Evitar vibración por long press
         event.stopPropagation();
     });
 
@@ -135,32 +141,42 @@ const loadList = (listType) => {
         startY = event.clientY;
         pressStartTime = Date.now();
         firstTarget = event.target.closest(".products-list-item");
-    });
 
-    // clean variables
-    list.addEventListener("pointerup", event => {
-        const targetProduct = event.target.closest(".products-list-item");
-        const pressDuration = Date.now() - pressStartTime;
-        if (firstTarget == targetProduct && fisrtClick == true) {
-            console.log("holia")
-            const index = Array.from(list.children).indexOf(targetProduct);
-            const product = filteredProducts[index];
-            toggleFavourite(product);
-            fisrtClick = false;
-            clearTimeout(timeoutId);
-            if (listType == "favouritesList") {
-                loadFavourites();
-            }
-        } else if (pressDuration > 1000) {
-            if (targetProduct) {
-                const index = Array.from(list.children).indexOf(targetProduct);
+        // Mantener presionado por 2 segundos para añadir/quitar al carrito
+        pressTimeout = setTimeout(() => {
+            if (firstTarget) {
+                const index = Array.from(list.children).indexOf(firstTarget);
                 const product = filteredProducts[index];
                 toggleCart(product);
                 if (listType == "cartList") {
                     loadCart();
                 }
+                navigator.vibrate(200);
+                }
+            }, 2000);
+    });
+
+    // clean variables
+    list.addEventListener("pointerup", event => {
+        // 
+        clearTimeout(pressTimeout);
+        const targetProduct = event.target.closest(".products-list-item");
+        const pressDuration = Date.now() - pressStartTime;
+
+        // Doble click para añadir/quitar de favoritos
+        if (firstTarget == targetProduct && fisrtClick == 1) {
+            const index = Array.from(list.children).indexOf(targetProduct);
+            const product = filteredProducts[index];
+            toggleFavourite(product);
+            fisrtClick = 2;
+            clearTimeout(timeoutId);
+            if (listType == "favouritesList") {
+                loadFavourites();
             }
-        } else {
+            navigator.vibrate(500);
+            console.log("togglefavorito hecho;")
+        // Si no ha mantenido presionado significa que quiere ir a la pagina del producto
+        } else if(pressDuration < 2000){
             timeoutId = setTimeout(() => {
                 if (isNaN(endY)) {
                     endY = startY;
@@ -168,16 +184,16 @@ const loadList = (listType) => {
                 if (targetProduct && (Math.abs(startY-endY) < 5 )) {
                     const index = Array.from(list.children).indexOf(targetProduct);
                     const product = filteredProducts[index];
-                    fisrtClick = false;
+                    fisrtClick = 0;
                     loadProductInfo(product);
                 }           
             }, 400);
         }
+        // Ajustar variables
         endY = NaN;
-        if(fisrtClick == true) {
-            startY = NaN;
-        }
-        fisrtClick = true;
+        if(fisrtClick > 0) {startY = NaN;} 
+        if (fisrtClick == 2) {fisrtClick = 0
+        } else {fisrtClick = 1;}
     });
 
     // obtain movment
@@ -396,7 +412,8 @@ function handleDeviceMotion(event) {
 
     const shakeThreshold = 25; 
     if (accelerationTotal > shakeThreshold) {
-        if(document.querySelector("h1").innerHTML== "Cart") { //  meter confirmacion estas seguro?  duplicar para favoritos
+        // Agitar desde el carrito para borrar todo el carrito
+        if(document.querySelector("h1").innerHTML== "Cart") {
             const confirmation = confirm("¿Estás seguro de vaciar el carrito?");
             if (confirmation) {
                 console.log("Se ha detectado una sacudida. Vaciar carrito.");
@@ -410,6 +427,7 @@ function handleDeviceMotion(event) {
             } else {
                 console.log("Operación cancelada. El carrito no se ha vaciado.");
             }
+        // Agitar desde favoritos para borrar todos los favoritos
         } else if(document.querySelector("h1").innerHTML== "Favourites") {
             const confirmation = confirm("¿Estás seguro de vaciar la lista de favoritos?");
             if (confirmation) {
