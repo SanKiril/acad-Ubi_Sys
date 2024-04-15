@@ -130,5 +130,5 @@ dist
 .pnp.*
 
 *.sync*
-products.json
 Dockerfile
+data/products.json
