@@ -5,10 +5,11 @@ const server = require("http").Server(app);
 const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
 const chokidar = require('chokidar');
+const PORT  = 3000
 
 app.use(bodyParser.json());
 
-const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js', './utils.js']; // Adjust filesToCheck
+const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js', './www/utils.js']; // Adjust filesToCheck
 // Function to reload the module
 function reloadModule() {
   filesToCheck.forEach(filePath => {
@@ -51,4 +52,4 @@ io.on("connection", function(socket){
   });
 });
 
-server.listen(3000, () => console.log("server started"));
+server.listen(PORT, () => console.log("server started on port " + PORT));
