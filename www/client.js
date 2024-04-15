@@ -42,6 +42,7 @@ const loadList = (listType) => {
     // list
     const list = document.createElement("ul");
     list.classList.add("products-list");
+    list.style.userSelect = "none";
     utils.mainBody.appendChild(list);
 
     // filter products
@@ -55,19 +56,60 @@ const loadList = (listType) => {
             break;
         default:
             filteredProducts = products;
+
     }
+    filteredProducts.sort((a, b) => b.order - a.order);
+    console.log(products);
 
     // add products to list
     filteredProducts.forEach(product => {
         // product item
         const productItem = document.createElement("li");
         productItem.classList.add("products-list-item");
+        productItem.id = product.name;
+        productItem.draggable = true;
         list.appendChild(productItem);
 
+        productItem.addEventListener("dragstart", (event) => {
+            event.dataTransfer.setData("text/plain", event.target.id);
+        })
+        productItem.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        })
+
+        productItem.addEventListener("drop", (event) => {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedObject = document.getElementById(data);
+            const dropZone = event.target.alt || event.target.getData("text") || event.target.id;
+            let dragged_order;
+            let new_order;
+            products.forEach(element => {
+                if (dropZone == element.name){
+                    console.log(element, element.order);
+                    new_order = element.order;
+                }
+                else if (draggedObject.id == element.name){
+                    console.log(element, element.order);
+                    dragged_order = element.order;
+                }
+            });
+            products.forEach(element => {
+                if (dropZone == element.name){
+                    element.order = dragged_order;
+                }
+                else if (draggedObject.id == element.name){
+                    element.order = new_order;
+                }
+            });
+            utils.mainBody.innerHTML = "";
+            loadList();
+        })
         // product item image
         const productImage = document.createElement("img");
         productImage.src = product.image;
         productImage.alt = product.name;
+        productImage.draggable = false;
         productItem.appendChild(productImage);
 
         // product item name
@@ -79,38 +121,85 @@ const loadList = (listType) => {
     // load product info
     let startY = NaN;
     let endY = NaN;
-    let fisrtClick = false;
+    let fisrtClick = 0;
     let firstTarget = null;
+    let timeoutId;
+    let pressTimeout;
+    let pressStartTime = 0;
+
+    list.addEventListener("contextmenu", event => {
+        event.preventDefault(); // Evita que se abra el menú contextual
+        event.stopPropagation();
+    });
+
+    list.addEventListener("touchstart", event => {
+        event.preventDefault(); // Evitar vibración por long press
+        event.stopPropagation();
+    });
+
     list.addEventListener("pointerdown", event => {
         startY = event.clientY;
-        setTimeout(() => {
-            const targetProduct = event.target.closest(".products-list-item");
-            if (targetProduct && (Math.abs(startY-endY) < 5 || isNaN(endY))) {// y si el desplazamiento es  mayor a xx?
-                const index = Array.from(list.children).indexOf(targetProduct);
+        pressStartTime = Date.now();
+        firstTarget = event.target.closest(".products-list-item");
+
+        // Mantener presionado por 2 segundos para añadir/quitar al carrito
+        pressTimeout = setTimeout(() => {
+            if (firstTarget) {
+                const index = Array.from(list.children).indexOf(firstTarget);
                 const product = filteredProducts[index];
-                fisrtClick = false;
-                loadProductInfo(product);
-            }
-        }, 400);
+                toggleCart(product);
+                if (listType == "cartList") {
+                    loadCart();
+                }
+                navigator.vibrate(200);
+                }
+            }, 2000);
     });
 
     // clean variables
     list.addEventListener("pointerup", event => {
-        clearTimeout();
+        // 
+        clearTimeout(pressTimeout);
+        const targetProduct = event.target.closest(".products-list-item");
+        const pressDuration = Date.now() - pressStartTime;
+
+        // Doble click para añadir/quitar de favoritos
+        if (firstTarget == targetProduct && fisrtClick == 1) {
+            const index = Array.from(list.children).indexOf(targetProduct);
+            const product = filteredProducts[index];
+            toggleFavourite(product);
+            fisrtClick = 2;
+            clearTimeout(timeoutId);
+            if (listType == "favouritesList") {
+                loadFavourites();
+            }
+            navigator.vibrate(500);
+            console.log("togglefavorito hecho;")
+        // Si no ha mantenido presionado significa que quiere ir a la pagina del producto
+        } else if(pressDuration < 2000){
+            timeoutId = setTimeout(() => {
+                if (isNaN(endY)) {
+                    endY = startY;
+                }
+                if (targetProduct && (Math.abs(startY-endY) < 5 )) {
+                    const index = Array.from(list.children).indexOf(targetProduct);
+                    const product = filteredProducts[index];
+                    fisrtClick = 0;
+                    loadProductInfo(product);
+                }           
+            }, 400);
+        }
+        // Ajustar variables
         endY = NaN;
-        startY = NaN;
-        fisrtClick = true;
+        if(fisrtClick > 0) {startY = NaN;} 
+        if (fisrtClick == 2) {fisrtClick = 0
+        } else {fisrtClick = 1;}
     });
 
     // obtain movment
     list.addEventListener("pointermove",event =>{
-        endY = event.clientY;
+        endY = event.clientY;  
     });
-
-    //para favoritos doble click toggle favorite
-
-    //para borrar desplizar togglecart 170px que sea visible
-
 }
 
 const loadFavourites = () => {
@@ -323,11 +412,36 @@ function handleDeviceMotion(event) {
 
     const shakeThreshold = 25; 
     if (accelerationTotal > shakeThreshold) {
-        if(document.querySelector("h1").innerHTML== "Cart") { //  meter confirmacion estas seguro?  duplicar para favoritos
-            console.log("Se ha detectado una sacudida. vaciando carrito.");
-            products.forEach((product) => product.cart = false);
-            console.log("carrito recarga")
-            loadCart();
+        // Agitar desde el carrito para borrar todo el carrito
+        if(document.querySelector("h1").innerHTML== "Cart") {
+            const confirmation = confirm("¿Estás seguro de vaciar el carrito?");
+            if (confirmation) {
+                console.log("Se ha detectado una sacudida. Vaciar carrito.");
+                products.forEach((product) => {
+                    if (product.cart) {
+                        toggleCart(product);
+                    }
+                });
+                console.log("Carrito vaciado");
+                loadCart();
+            } else {
+                console.log("Operación cancelada. El carrito no se ha vaciado.");
+            }
+        // Agitar desde favoritos para borrar todos los favoritos
+        } else if(document.querySelector("h1").innerHTML== "Favourites") {
+            const confirmation = confirm("¿Estás seguro de vaciar la lista de favoritos?");
+            if (confirmation) {
+                console.log("Se ha detectado una sacudida. Vaciar favoritos.");
+                products.forEach((product) => {
+                    if (product.favourite) {
+                        toggleFavourite(product);
+                    }
+                });
+                console.log("favoritos vaciado");
+                loadFavourites();
+            } else {
+                console.log("Operación cancelada. La lista de favoritos no se ha vaciado.");
+            }
         }
     }
 }
