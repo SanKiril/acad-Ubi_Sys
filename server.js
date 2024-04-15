@@ -8,7 +8,7 @@ const chokidar = require('chokidar');
 
 app.use(bodyParser.json());
 
-const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js']; // Adjust filesToCheck
+const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js', './utils.js']; // Adjust filesToCheck
 // Function to reload the module
 function reloadModule() {
   filesToCheck.forEach(filePath => {
