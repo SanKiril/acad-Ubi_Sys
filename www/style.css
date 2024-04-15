@@ -211,10 +211,9 @@ li
   margin-bottom: 1dvh;
 }
 
-#product_info_inner {
-  display: flex;
-  flex-flow: column nowrap;
-  width: 90%;
+#product_info>p {
+  width: 100%;
+  text-align: left;
 }
 
 .product_info_image {

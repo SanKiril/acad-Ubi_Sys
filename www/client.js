@@ -59,7 +59,6 @@ const loadList = (listType) => {
 
     }
     filteredProducts.sort((a, b) => b.order - a.order);
-    console.log(products);
 
     // add products to list
     filteredProducts.forEach(product => {
