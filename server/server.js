@@ -1,3 +1,4 @@
+//comment
 const express = require('express');
 const fs = require('fs');
 const app = express();
@@ -9,8 +10,16 @@ const PORT  = 3000
 
 app.use(bodyParser.json());
 
-const filesToCheck = ['./www/client.html', './www/client.js', './www/style.css', './www/clerk.html', './server.js', './www/utils.js']; // Adjust filesToCheck
-// Function to reload the module
+const filesToCheck = [
+  "/server/server.js",
+  "/www/client.js",
+  "/www/clerk.html",
+  "/www/clerk.js",
+  "/www/client.js",
+  "/www/style.css",
+  "/www/utils.js",
+  "/data/products-default.json"
+];
 function reloadModule() {
   filesToCheck.forEach(filePath => {
     delete require.cache[require.resolve(filePath)];
