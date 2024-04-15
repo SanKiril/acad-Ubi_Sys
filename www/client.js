@@ -80,16 +80,16 @@ const loadList = (listType) => {
             event.preventDefault();
             const data = event.dataTransfer.getData("text");
             const draggedObject = document.getElementById(data);
-            const dropZone = event.target.alt || event.target.getData("text") || event.target.id;
+            const dropZone = event.target.alt || event.target.dataset.text || event.target.id;
             let dragged_order;
             let new_order;
             products.forEach(element => {
                 if (dropZone == element.name){
-                    console.log(element, element.order);
+                    //console.log(element, element.order);
                     new_order = element.order;
                 }
                 else if (draggedObject.id == element.name){
-                    console.log(element, element.order);
+                    //console.log(element, element.order);
                     dragged_order = element.order;
                 }
             });
