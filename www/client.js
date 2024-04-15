@@ -115,6 +115,13 @@ const loadList = (listType) => {
         const productName = document.createElement("p");
         productName.innerHTML = product.name;
         productItem.appendChild(productName);
+
+        if (listType == "cartList") {// añadir precio y cantidad comprada
+            const productPriceQuantity = document.createElement("p");
+            productPriceQuantity.innerHTML =  product.quantity.toString()+ "x    " + product.price.toString() +" $";
+            productItem.appendChild(productPriceQuantity)
+
+        }
     });
 
     // load product info
@@ -160,9 +167,9 @@ const loadList = (listType) => {
                 added_to_cart_image.id = null;
                 added_to_cart_image.style.width = rect.width/2 + "px";
                 if (product["cart"])
-                    added_to_cart_image.src = "add-to-cart-icon.png";
-                else
                     added_to_cart_image.src = "remove-from-cart-icon.png";
+                else
+                    added_to_cart_image.src = "add-to-cart-icon.png";
                 added_to_cart_image.style.position = "absolute";
                 added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
                 added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
@@ -374,6 +381,16 @@ const loadFooter = () => {
         loadMain();
     });
 
+    // add search menu
+    const searchByVoice = document.createElement("img");
+    searchByVoice.src = "icon-mic.png";
+    searchByVoice.alt = "searchByVoice";
+    footer.appendChild(searchByVoice);
+
+    searchByVoice.addEventListener("pointerdown", () => {
+        busquedaPorVoz();
+    });
+
     // add nfc reader
     const nfcReader = document.createElement("img");
     nfcReader.src = "icon-nfc.png";
@@ -437,10 +454,42 @@ const toggleFavourite = async (product) => {
 
 const toggleCart = async (product) => {
     // update products list
+    let numero = 0;
+    if (product.cart == false) {
+        do {
+            numero = prompt("Por favor ingresa un número entre 1 y 100:");
+            if (numero === null) {
+                return;
+            }
+            numero = parseInt(numero); // Convertir el valor ingresado a un número entero
+        } while (isNaN(numero) || numero < 1 || numero > 100); // Repetir hasta que se ingrese un número válido
+    }
+    product.quantity = numero;
     product.cart = !product.cart;
 
     // send products list
     await fetchProducts("send");
+}
+
+//busqueda por voz
+function busquedaPorVoz() {
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-GB'; // Establece el idioma
+    recognition.interimResults = false; // Para obtener resultados intermedios o no
+
+    recognition.start(); // Inicia la escucha por voz
+
+    recognition.onresult = (event) => {
+        const result = event.results[0][0].transcript;
+        console.log('Texto capturado:', result);
+        const product_obj = products.filter(producto => producto.name.toLowerCase() == result.toLowerCase());
+        if (product_obj.length > 0) {
+            loadProductInfo(product_obj[0]);
+            //alert("producto econtrado");
+        } else {
+            alert("producto no econtrado");
+        }
+    };
 }
 
 // Función para manejar el evento de movimiento del dispositivo
