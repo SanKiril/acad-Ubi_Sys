@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
 const chokidar = require('chokidar');
 const path = require('path');
-const PORT  = 3101
+const PORT  = 3000
 
 app.use(bodyParser.json());
 
