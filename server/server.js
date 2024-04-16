@@ -12,11 +12,12 @@ app.use(bodyParser.json());
 
 const currentDir = __dirname;
 const rootDirectory = path.join(currentDir, '..');
+console.log(rootDirectory);
 
 let projectDirectory = rootDirectory + "/app";
 if (!fs.existsSync(projectDirectory)) {
   projectDirectory = rootDirectory;
-  if (!fs.existsSync(rootDirectory)) {
+  if (!fs.existsSync(projectDirectory)) {
     console.log("Please call this function from the root folder: node server/server.js.");
     process.exit();
   }
