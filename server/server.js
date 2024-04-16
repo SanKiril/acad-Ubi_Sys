@@ -16,6 +16,23 @@ if (fs.existsSync("/app")) {
   rootDirectory = "";
 }
 
+const productsJson = `${rootDirectory}/data/products.json`;
+const productsDefaultJson = `${rootDirectory}/data/products-default.json`;
+if (!fs.existsSync(productsJson))
+  fs.readFile(productsDefaultJson, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    fs.writeFile(productsJson, data, 'utf8', (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log('File copied successfully!');
+    });
+  });
+
 const filesToCheckDirectory = rootDirectory + "/www"
 const fileNames = fs.readdirSync(filesToCheckDirectory);
 let filesToCheck = Array.from(fileNames.map(fileName => `${filesToCheckDirectory}/${fileName}`));
@@ -41,47 +58,6 @@ app.use(express.static("data"));
 app.get('/', (_, res) => res.sendFile("client.html", { root: "www" }));
 
 // update files
-
-
-if (fs.existsSync("/app")) {
-  const productsJson = "/app/data/products.json";
-  const productsDefaultJson = "/app/data/products-default.json";
-  if (!fs.existsSync(productsJson))
-    fs.readFile(productsDefaultJson, 'utf8', (err, data) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      fs.writeFile(productsJson, data, 'utf8', (err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log('File copied successfully!');
-      });
-    });
-} else {
-  const productsJson = "/data/products.json";
-  const productsDefaultJson = "/data/products-default.json";
-  if (!fs.existsSync(productsJson))
-    fs.readFile(productsDefaultJson, 'utf8', (err, data) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      fs.writeFile(productsJson, data, 'utf8', (err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log('File copied successfully!');
-      });
-    });
-}
-
-
-
-
 app.post('/products.json', (req, res) => {
   console.log("Updated products.json file")
   fs.writeFile("data/products.json", JSON.stringify(req.body), (err) => {
