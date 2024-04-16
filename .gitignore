@@ -132,3 +132,4 @@ dist
 *.sync*
 Dockerfile
 data/products.json
+backup/*
