@@ -153,7 +153,7 @@ const loadList = (listType) => {
                     loadCart();
                 }
                 navigator.vibrate(200);
-                firstClick = 2;
+                firstClick = 0;
                 const rect = firstTarget.getBoundingClientRect();
                 let added_to_cart_image = document.createElement("img");
                 added_to_cart_image.style.zIndex = "1000";
