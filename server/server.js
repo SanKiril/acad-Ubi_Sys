@@ -5,17 +5,21 @@ const server = require("http").Server(app);
 const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
 const chokidar = require('chokidar');
+const path = require('path');
 const PORT  = 3000
 
 app.use(bodyParser.json());
 
-const path = require('path');
 const currentDir = __dirname;
 const rootDirectory = path.join(currentDir, '..');
 
 let projectDirectory = rootDirectory + "/app";
 if (!fs.existsSync(projectDirectory)) {
   projectDirectory = rootDirectory;
+  if (!fs.existsSync(rootDirectory)) {
+    console.log("Please call this function from the root folder: node server/server.js.");
+    process.exit();
+  }
 }
 
 const productsJson = `${projectDirectory}/data/products.json`;

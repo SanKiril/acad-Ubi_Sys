@@ -112,6 +112,11 @@ const loadList = async (listType) => {
     list.style.userSelect = "none";
     utils.mainBody.appendChild(list);
 
+    if (products == {}) {
+        window.location.reload();
+        return;
+    }
+
     // filter products
     let filteredProducts;
     switch (listType) {
