@@ -9,15 +9,17 @@ const PORT  = 3000
 
 app.use(bodyParser.json());
 
-let rootDirectory;
-if (fs.existsSync("/app")) {
-  rootDirectory = "/app";
-} else {
-  rootDirectory = "";
+const path = require('path');
+const currentDir = __dirname;
+const rootDirectory = path.join(currentDir, '..');
+
+let projectDirectory = rootDirectory + "/app";
+if (!fs.existsSync(projectDirectory)) {
+  projectDirectory = rootDirectory;
 }
 
-const productsJson = `${rootDirectory}/data/products.json`;
-const productsDefaultJson = `${rootDirectory}/data/products-default.json`;
+const productsJson = `${projectDirectory}/data/products.json`;
+const productsDefaultJson = `${projectDirectory}/data/products-default.json`;
 if (!fs.existsSync(productsJson))
   fs.readFile(productsDefaultJson, 'utf8', (err, data) => {
     if (err) {
@@ -33,10 +35,10 @@ if (!fs.existsSync(productsJson))
     });
   });
 
-const filesToCheckDirectory = rootDirectory + "/www"
+const filesToCheckDirectory = projectDirectory + "/www"
 const fileNames = fs.readdirSync(filesToCheckDirectory);
 let filesToCheck = Array.from(fileNames.map(fileName => `${filesToCheckDirectory}/${fileName}`));
-filesToCheck.push(`${rootDirectory}/server/server.js`);
+filesToCheck.push(`${projectDirectory}/server/server.js`);
 
 function reloadModule() {
   filesToCheck.forEach(filePath => {
