@@ -6,22 +6,24 @@ const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
 const chokidar = require('chokidar');
 const path = require('path');
-const PORT  = 3000
+const PORT  = 3101
 
 app.use(bodyParser.json());
 
 const currentDir = __dirname;
+const currentFolder = path.basename(currentDir); // Get the last folder name
+if (currentFolder == "server") {
+  console.error("Please call server.js from the project's root folder: node server/server.js");
+  process.exit();
+}
 const rootDirectory = path.join(currentDir, '..');
-console.log(rootDirectory);
 
 let projectDirectory = rootDirectory + "/app";
 if (!fs.existsSync(projectDirectory)) {
   projectDirectory = rootDirectory;
-  if (!fs.existsSync(projectDirectory)) {
-    console.log("Please call this function from the root folder: node server/server.js.");
-    process.exit();
-  }
 }
+
+console.log(projectDirectory);
 
 const productsJson = `${projectDirectory}/data/products.json`;
 const productsDefaultJson = `${projectDirectory}/data/products-default.json`;
@@ -57,12 +59,12 @@ const watcher = chokidar.watch(filesToCheck);
 watcher.on('change', reloadModule);
 
 // serve static files
-app.use(express.static("www"));
-app.use(express.static("media"));
-app.use(express.static("data"));
+app.use(express.static("/www"));
+app.use(express.static("/media"));
+app.use(express.static("/data"));
 
 // serve default file
-app.get('/', (_, res) => res.sendFile("client.html", { root: "www" }));
+app.get('/', (_, res) => res.sendFile("client.html", { root: "/www" }));
 
 // update files
 app.post('/products.json', (req, res) => {
