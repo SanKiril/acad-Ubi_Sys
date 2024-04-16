@@ -647,6 +647,13 @@ function busquedaPorVoz() {
     recognition.start(); // Inicia la escucha por voz
     listening = true
 
+    recognition.onend = () => {
+        console.log('El reconocimiento de voz se detuvo automáticamente.');
+        listening = false
+        document.getElementById("search_by_voice_icon").style.backgroundColor = "transparent";
+    };
+
+
     recognition.onresult = (event) => {
         const result = event.results[0][0].transcript;
         console.log('Texto capturado:', result);
@@ -657,6 +664,8 @@ function busquedaPorVoz() {
         } else {
             alert("producto no encontrado");
         }
+        listening = false
+        document.getElementById("search_by_voice_icon").style.backgroundColor = "transparent";
     };
 }
 
