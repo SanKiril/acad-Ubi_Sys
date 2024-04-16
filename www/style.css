@@ -243,16 +243,6 @@ li
   #product_info>p {
     font-size: 0.8rem;
   }
-
-}
-
-@media screen and (max-height: 700px){
-  #product_info>h1 {
-    font-size: 2rem;
-  }
-  #product_info>p {
-    font-size: 0.8rem;
-  }
 }
 
 .product_info_image {
@@ -331,6 +321,13 @@ li
   right: 0;
   height: 16%;
   width: 30%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 100%;
 }
 
 .product_quantity {
@@ -342,6 +339,13 @@ li
   left: 0;
   height: 16%;
   width: 30%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 100%;
 }
 
 .fav_corner_icon {

@@ -437,14 +437,14 @@ function getProductInfoContent(product) {
                 document.body.removeChild(added_to_cart_image);
                 toggleCartInfo(product);
             }, 500);
-            }, 1000);
+        }, 1000);
     });
 
     product_info_image.addEventListener("pointerup", () => {
         clearTimeout(pressTimeout);
-    })
+    });
 
-    product_info_image.addEventListener("pointerdown", () => {
+    product_info_image.addEventListener("pointerup", () => {
         click_count++;
         if (click_count == 1) {
             timer = setTimeout(() => {
