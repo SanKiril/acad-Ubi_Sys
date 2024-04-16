@@ -231,7 +231,7 @@ const loadList = async (listType) => {
                     added_to_cart_image.src = "remove-from-cart-icon.png";
                 else
                     added_to_cart_image.src = "add-to-cart-icon.png";
-                let toggle_cart_result = await toggleCart(product);
+                let toggle_cart_result = await toggleCart(product, true);
                 if (toggle_cart_result == -1) {
                     return;
                 };
@@ -244,7 +244,10 @@ const loadList = async (listType) => {
                 added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
                 document.body.appendChild(added_to_cart_image);
 
-                setTimeout(() => {document.body.removeChild(added_to_cart_image);}, 500);
+                setTimeout(() => {
+                    document.body.removeChild(added_to_cart_image);
+                    toggleCartInfo(product);
+                }, 500);
             }
             }, 1000);
     });
@@ -419,7 +422,7 @@ function getProductInfoContent(product) {
                 added_to_cart_image.src = "remove-from-cart-icon.png";
             else
                 added_to_cart_image.src = "add-to-cart-icon.png";
-            let toggle_cart_result = await toggleCart(product);
+            let toggle_cart_result = await toggleCart(product, true);
             if (toggle_cart_result == -1) {
                 return;
             };
@@ -429,7 +432,10 @@ function getProductInfoContent(product) {
             added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
             document.body.appendChild(added_to_cart_image);
 
-            setTimeout(() => {document.body.removeChild(added_to_cart_image);}, 500);
+            setTimeout(() => {
+                document.body.removeChild(added_to_cart_image);
+                toggleCartInfo(product);
+            }, 500);
             }, 1000);
     });
 
@@ -592,7 +598,7 @@ const toggleFavourite = async (product) => {
     await fetchProducts("send");
 }
 
-const toggleCart = async (product) => {
+const toggleCart = async (product, notoggle = false) => {
     // update products list
     let numero = 0;
     if (product.cart == false) {
@@ -606,7 +612,8 @@ const toggleCart = async (product) => {
     }
     product.quantity = numero;
     product.cart = !product.cart;
-    toggleCartInfo(product);
+    if (!notoggle)
+        toggleCartInfo(product);
 
     // send products list
     await fetchProducts("send");
