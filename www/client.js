@@ -235,10 +235,6 @@ const loadList = async (listType) => {
                 if (toggle_cart_result == -1) {
                     return;
                 };
-                if (listType == "cartList") {
-                    loadCart();
-                    return;
-                }
                 added_to_cart_image.style.position = "absolute";
                 added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
                 added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
@@ -247,6 +243,9 @@ const loadList = async (listType) => {
                 setTimeout(() => {
                     document.body.removeChild(added_to_cart_image);
                     toggleCartInfo(product);
+                    if (listType == "cartList") {
+                        loadCart();
+                    }
                 }, 500);
             }
             }, 1000);
@@ -286,16 +285,18 @@ const loadList = async (listType) => {
                 added_to_favourites_image.src = "heart-icon.png";
             }
             toggleFavourite(product);
-            if (listType == "favouritesList") {
-                loadFavourites();
-                return;
-            }
+
             added_to_favourites_image.style.position = "absolute";
             added_to_favourites_image.style.top = rect.top + (rect.height/4) + "px";
             added_to_favourites_image.style.left = rect.left + (rect.width/4) + "px";
             document.body.appendChild(added_to_favourites_image);
             
-            setTimeout(() => {document.body.removeChild(added_to_favourites_image);}, 500);
+            setTimeout(() => {
+                document.body.removeChild(added_to_favourites_image);
+                if (listType == "favouritesList") {
+                    loadFavourites();
+                }
+            }, 500);
         // Si no ha mantenido presionado significa que quiere ir a la pagina del producto
         } else if(pressDuration < 1000){
             timeoutId = setTimeout(() => {

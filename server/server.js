@@ -9,16 +9,18 @@ const PORT  = 3000
 
 app.use(bodyParser.json());
 
-const filesToCheck = [
-  "/app/server/server.js",
-  "/app/www/client.js",
-  "/app/www/clerk.html",
-  "/app/www/clerk.js",
-  "/app/www/client.js",
-  "/app/www/style.css",
-  "/app/www/utils.js",
-  "/app/data/products-default.json"
-];
+let rootDirectory;
+if (fs.existsSync("/app")) {
+  rootDirectory = "/app";
+} else {
+  rootDirectory = "";
+}
+
+const filesToCheckDirectory = rootDirectory + "/www"
+const fileNames = fs.readdirSync(filesToCheckDirectory);
+let filesToCheck = Array.from(fileNames.map(fileName => `${filesToCheckDirectory}/${fileName}`));
+filesToCheck.push(`${rootDirectory}/server/server.js`);
+
 function reloadModule() {
   filesToCheck.forEach(filePath => {
     delete require.cache[require.resolve(filePath)];
