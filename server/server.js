@@ -11,11 +11,6 @@ const PORT  = 3000
 app.use(bodyParser.json());
 
 const currentDir = __dirname;
-const currentFolder = path.basename(currentDir); // Get the last folder name
-if (currentFolder == "server") {
-  console.error("Please call server.js from the project's root folder: node server/server.js");
-  process.exit();
-}
 const rootDirectory = path.join(currentDir, '..');
 
 let projectDirectory = rootDirectory + "/app";
@@ -64,7 +59,14 @@ app.use(express.static("/media"));
 app.use(express.static("/data"));
 
 // serve default file
-app.get('/', (_, res) => res.sendFile("client.html", { root: "/www" }));
+app.get('/', (_, res) => {
+  res.sendFile("client.html", { root: "/www" }, (err) => {
+    if (err) {
+      console.error("Ejecutar este archivo desde el directorio base del projecto:\n\tnode server/server.js");
+      process.exit();
+    }
+  });
+});
 
 // update files
 app.post('/products.json', (req, res) => {
