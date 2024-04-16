@@ -10,19 +10,20 @@ const PORT  = 3000
 app.use(bodyParser.json());
 
 const filesToCheck = [
-  "/server/server.js",
-  "/www/client.js",
-  "/www/clerk.html",
-  "/www/clerk.js",
-  "/www/client.js",
-  "/www/style.css",
-  "/www/utils.js",
-  "/data/products-default.json"
+  "../server/server.js",
+  "../www/client.js",
+  "../www/clerk.html",
+  "../www/clerk.js",
+  "../www/client.js",
+  "../www/style.css",
+  "../www/utils.js",
+  "../data/products-default.json"
 ];
 function reloadModule() {
   filesToCheck.forEach(filePath => {
     delete require.cache[require.resolve(filePath)];
   });
+  console.log("reloaded module and client\n")
   io.emit("reload");
 }
 // Watch for changes in the specific files
