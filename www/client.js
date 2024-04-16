@@ -524,19 +524,25 @@ const loadFooter = () => {
         console.error("Webkit Speech Recognition not supported in this browser.");
     }
     
-    // add nfc reader
-    const nfcReader = document.createElement("img");
-    nfcReader.src = "icon-nfc.png";
-    nfcReader.alt = "NFC Reader";
-    footer.appendChild(nfcReader);
+    // add nfc reader if enabled in browser
+    try {
+        new NDEFReader();
+        const nfcReader = document.createElement("img");
+        nfcReader.src = "icon-nfc.png";
+        nfcReader.alt = "NFC Reader";
+        footer.appendChild(nfcReader);
+    
+        // read nfc
+        nfcReader.addEventListener("pointerdown", async () => {
+            const product = await utils.handleNFC("read");
+            if (product) {
+                loadProductInfo(product);
+            }
+        });
+    } catch (ReferenceError) {
+        console.error("NFC Reading not supported in this browser.")
+    }
 
-    // read nfc
-    nfcReader.addEventListener("pointerdown", async () => {
-        const product = await utils.handleNFC("read");
-        if (product) {
-            loadProductInfo(product);
-        }
-    });
 
     // add favourites
     const favourites = document.createElement("img");
