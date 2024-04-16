@@ -133,3 +133,4 @@ dist
 Dockerfile
 data/products.json
 backup/*
+backup
