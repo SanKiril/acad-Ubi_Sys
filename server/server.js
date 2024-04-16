@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const io = require("socket.io")(server);
 const chokidar = require('chokidar');
 const path = require('path');
-const PORT  = 3000
+const PORT  = 3001
 
 app.use(bodyParser.json());
 
@@ -17,8 +17,6 @@ let projectDirectory = rootDirectory + "/app";
 if (!fs.existsSync(projectDirectory)) {
   projectDirectory = rootDirectory;
 }
-
-console.log(projectDirectory);
 
 const productsJson = `${projectDirectory}/data/products.json`;
 const productsDefaultJson = `${projectDirectory}/data/products-default.json`;
@@ -54,15 +52,16 @@ const watcher = chokidar.watch(filesToCheck);
 watcher.on('change', reloadModule);
 
 // serve static files
-app.use(express.static("/www"));
-app.use(express.static("/media"));
-app.use(express.static("/data"));
+app.use(express.static(`${projectDirectory}/www`));
+app.use(express.static(`${projectDirectory}/media`));
+app.use(express.static(`${projectDirectory}/data`));
 
 // serve default file
 app.get('/', (_, res) => {
-  res.sendFile("client.html", { root: "/www" }, (err) => {
+  res.sendFile("client.html", { root: `${projectDirectory}/www` }, (err) => {
     if (err) {
       console.error("Ejecutar este archivo desde el directorio base del projecto:\n\tnode server/server.js");
+      console.error(err);
       process.exit();
     }
   });
