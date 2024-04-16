@@ -1,4 +1,4 @@
-const express = require('express');
+  const express = require('express');
 const fs = require('fs');
 const app = express();
 const server = require("http").Server(app);
@@ -10,20 +10,20 @@ const PORT  = 3000
 app.use(bodyParser.json());
 
 const filesToCheck = [
-  "../server/server.js",
-  "../www/client.js",
-  "../www/clerk.html",
-  "../www/clerk.js",
-  "../www/client.js",
-  "../www/style.css",
-  "../www/utils.js",
-  "../data/products-default.json"
+  "/app/server/server.js",
+  "/app/www/client.js",
+  "/app/www/clerk.html",
+  "/app/www/clerk.js",
+  "/app/www/client.js",
+  "/app/www/style.css",
+  "/app/www/utils.js",
+  "/app/data/products-default.json"
 ];
 function reloadModule() {
   filesToCheck.forEach(filePath => {
     delete require.cache[require.resolve(filePath)];
   });
-  console.log("reloaded module and client\n")
+  console.log("Cambio local detectado: recargando archivos\n")
   io.emit("reload");
 }
 // Watch for changes in the specific files
@@ -53,7 +53,7 @@ app.post('/products.json', (req, res) => {
 });
 
 io.on("connection", function(socket){
-  console.log("Cliente recargado");
+  console.log("Nueva conexión de cliente detectada");
 
   socket.on("message_evt", function(message){
     console.log(socket.id, message);
@@ -61,4 +61,4 @@ io.on("connection", function(socket){
   });
 });
 
-server.listen(PORT, () => console.log("server started on port " + PORT));
+server.listen(PORT, () => console.log("Servidor iniciado en puerto  " + PORT));

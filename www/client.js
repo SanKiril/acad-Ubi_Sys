@@ -1,5 +1,9 @@
 import * as utils from "./utils.js";
 
+if (localStorage.getItem("firstTime") === null) {
+    localStorage.setItem("firstTime", true);
+}
+
 const MAX_FETCH_RETRIES = 3;
 let products = [];
 const socket = io();
@@ -38,9 +42,72 @@ const fetchProducts = async (method) => {
     }
 }
 
-const loadList = (listType) => {
+async function first_time_alert() {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    window.alert("Mantén pulsado un producto para añadirlo al carrito.\nDoble toque para añadirlo a favoritos.");
+}
+
+function getProduct(productName) {
+    for (let i = 0; i < products.length; i++) {
+        if (products[i]["name"] === productName) {
+            return products[i];
+        }
+    }
+}
+
+function toggleHeart(product) {
+    const productItem = document.getElementById(product["name"]);
+    if (!productItem)
+        return;
+    if (getProduct(product["name"])["favourite"]) {
+        const rect = productItem.getBoundingClientRect();
+        let added_to_favourites_image = document.createElement("img");
+        added_to_favourites_image.className = "fav_corner_icon";
+        added_to_favourites_image.style.width = "20px";
+        added_to_favourites_image.src = "heart-icon.png";
+        productItem.appendChild(added_to_favourites_image);
+    } else {
+        const added_to_favourites_image = productItem.querySelector(".fav_corner_icon");
+        if (added_to_favourites_image) {
+            productItem.removeChild(added_to_favourites_image);
+        }
+    }
+}
+
+function toggleCartInfo(product) {
+    const productItem = document.getElementById(product["name"]);
+    if (!productItem)
+        return;
+    const product_price = document.createElement("p");
+    product_price.innerHTML =  product.price.toString() +"$";
+    product_price.className = "product_price";
+    productItem.appendChild(product_price)
+
+    const product_quantity_value = product.quantity;
+    if (product_quantity_value > 0){
+        const product_quantity = document.createElement("p");
+        product_quantity.id = "product_quantity_decorator";
+        product_quantity.innerHTML =  product_quantity_value;
+        product_quantity.className = "product_quantity";
+        productItem.appendChild(product_quantity);
+    } else {
+        const product_quantity = productItem.querySelector("#product_quantity_decorator");
+        if (product_quantity) {
+            productItem.removeChild(product_quantity);
+        }
+    }
+}
+
+const loadList = async (listType) => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    if (localStorage.getItem("firstTime") == "true") {
+        console.log("first_time_alert");
+        first_time_alert();
+        localStorage.setItem("firstTime", false);
+    }
     // list
     const list = document.createElement("ul");
+    list.id = "list";
     list.classList.add("products-list");
     list.style.userSelect = "none";
     utils.mainBody.appendChild(list);
@@ -54,9 +121,9 @@ const loadList = (listType) => {
         case "cartList":
             filteredProducts = products.filter(product => product.cart);
             break;
+        case "productsList":
         default:
             filteredProducts = products;
-
     }
     filteredProducts.sort((a, b) => b.order - a.order);
 
@@ -67,7 +134,11 @@ const loadList = (listType) => {
         productItem.classList.add("products-list-item");
         productItem.id = product.name;
         productItem.draggable = true;
+        productItem.style.position = "relative";
+        
         list.appendChild(productItem);
+        toggleHeart(product);
+        toggleCartInfo(product);
 
         productItem.addEventListener("dragstart", (event) => {
             event.dataTransfer.setData("text/plain", event.target.id);
@@ -115,13 +186,6 @@ const loadList = (listType) => {
         const productName = document.createElement("p");
         productName.innerHTML = product.name;
         productItem.appendChild(productName);
-
-        if (listType == "cartList") {// añadir precio y cantidad comprada
-            const productPriceQuantity = document.createElement("p");
-            productPriceQuantity.innerHTML =  product.quantity.toString()+ "x    " + product.price.toString() +" $";
-            productItem.appendChild(productPriceQuantity)
-
-        }
     });
 
     // load product info
@@ -152,13 +216,10 @@ const loadList = (listType) => {
         }
 
         // Mantener presionado por 1 segundo para añadir/quitar al carrito
-        pressTimeout = setTimeout(() => {
+        pressTimeout = setTimeout(async () => {
             if (firstTarget) {
                 const index = Array.from(list.children).indexOf(firstTarget);
                 const product = filteredProducts[index];
-                if (listType == "cartList") {
-                    loadCart();
-                }
                 navigator.vibrate(200);
                 firstClick = 0;
                 const rect = firstTarget.getBoundingClientRect();
@@ -170,11 +231,19 @@ const loadList = (listType) => {
                     added_to_cart_image.src = "remove-from-cart-icon.png";
                 else
                     added_to_cart_image.src = "add-to-cart-icon.png";
+                let toggle_cart_result = await toggleCart(product);
+                if (toggle_cart_result == -1) {
+                    return;
+                };
+                if (listType == "cartList") {
+                    loadCart();
+                    return;
+                }
                 added_to_cart_image.style.position = "absolute";
                 added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
                 added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
                 document.body.appendChild(added_to_cart_image);
-                toggleCart(product);
+
                 setTimeout(() => {document.body.removeChild(added_to_cart_image);}, 500);
             }
             }, 1000);
@@ -201,9 +270,7 @@ const loadList = (listType) => {
             const product = filteredProducts[index];
             firstClick = 2;
             clearTimeout(timeoutId);
-            if (listType == "favouritesList") {
-                loadFavourites();
-            }
+
             navigator.vibrate(500);
             const rect = targetProduct.getBoundingClientRect();
             let added_to_favourites_image = document.createElement("img");
@@ -215,11 +282,16 @@ const loadList = (listType) => {
             } else {
                 added_to_favourites_image.src = "heart-icon.png";
             }
+            toggleFavourite(product);
+            if (listType == "favouritesList") {
+                loadFavourites();
+                return;
+            }
             added_to_favourites_image.style.position = "absolute";
             added_to_favourites_image.style.top = rect.top + (rect.height/4) + "px";
             added_to_favourites_image.style.left = rect.left + (rect.width/4) + "px";
             document.body.appendChild(added_to_favourites_image);
-            toggleFavourite(product);
+            
             setTimeout(() => {document.body.removeChild(added_to_favourites_image);}, 500);
         // Si no ha mantenido presionado significa que quiere ir a la pagina del producto
         } else if(pressDuration < 1000){
@@ -327,7 +399,45 @@ function getProductInfoContent(product) {
     var click_count = 0;
     var timer;
 
-    product_info_div.addEventListener("pointerdown", () => {
+    product_info_image.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+    })
+
+    let pressTimeout
+    product_info_image.addEventListener("pointerdown", function(event) {
+        // Mantener presionado por 1 segundo para añadir/quitar al carrito
+        pressTimeout = setTimeout(async () => {
+            navigator.vibrate(200);
+            click_count = 0;
+            const rect = product_info_image.getBoundingClientRect();
+            let added_to_cart_image = document.createElement("img");
+            added_to_cart_image.style.zIndex = "1000";
+            added_to_cart_image.id = null;
+            added_to_cart_image.style.width = rect.width/2 + "px";
+            if (product["cart"])
+                added_to_cart_image.src = "remove-from-cart-icon.png";
+            else
+                added_to_cart_image.src = "add-to-cart-icon.png";
+            let toggle_cart_result = await toggleCart(product);
+            if (toggle_cart_result == -1) {
+                return;
+            };
+            toggle_buttons([add_to_cart_button, favorite_button], product);
+            added_to_cart_image.style.position = "absolute";
+            added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
+            added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
+            document.body.appendChild(added_to_cart_image);
+
+            setTimeout(() => {document.body.removeChild(added_to_cart_image);}, 500);
+            }, 1000);
+    });
+
+    product_info_image.addEventListener("pointerup", () => {
+        clearTimeout(pressTimeout);
+    })
+
+    product_info_image.addEventListener("pointerdown", () => {
         click_count++;
         if (click_count == 1) {
             timer = setTimeout(() => {
@@ -336,17 +446,30 @@ function getProductInfoContent(product) {
         } else if (click_count == 2) {
             click_count = 0;
             clearTimeout(timer);
-            toggleFavourite(product);
+            const rect = product_info_image.getBoundingClientRect();
+            let added_to_favourites_image = document.createElement("img");
+            added_to_favourites_image.style.zIndex = "1000";
+            added_to_favourites_image.id = null;
+            added_to_favourites_image.style.width = rect.width/2 + "px";
             if (product["favourite"]) {
-                document.getElementById("added_to_favourites_image").style.visibility = "visible";
-                setTimeout(() => {document.getElementById("added_to_favourites_image").style.visibility = "hidden";}, 300);
+                added_to_favourites_image.src = "heart-icon-black.png";
+            } else {
+                added_to_favourites_image.src = "heart-icon.png";
             }
+            toggleFavourite(product);
+            added_to_favourites_image.style.position = "absolute";
+            added_to_favourites_image.style.top = rect.top + (rect.height/4) + "px";
+            added_to_favourites_image.style.left = rect.left + (rect.width/4) + "px";
+            document.body.appendChild(added_to_favourites_image);
+            setTimeout(() => {document.body.removeChild(added_to_favourites_image);}, 500);
             toggle_buttons([add_to_cart_button, favorite_button], product);
         }
     })
     
     return product_info_div;
 }
+
+let listening = false;
 
 function toggle_buttons(buttons, product) {
     if (product["cart"]) {
@@ -382,15 +505,25 @@ const loadFooter = () => {
     });
 
     // add search menu
-    const searchByVoice = document.createElement("img");
-    searchByVoice.src = "icon-mic.png";
-    searchByVoice.alt = "searchByVoice";
-    footer.appendChild(searchByVoice);
-
-    searchByVoice.addEventListener("pointerdown", () => {
-        busquedaPorVoz();
-    });
-
+    
+    try {
+        new webkitSpeechRecognition();
+        const searchByVoice = document.createElement("img");
+        searchByVoice.id = "search_by_voice_icon";
+        searchByVoice.style.borderRadius = "100px";
+        searchByVoice.src = "mic-icon.png";
+        searchByVoice.alt = "searchByVoice";
+        footer.appendChild(searchByVoice);
+        searchByVoice.addEventListener("pointerdown", () => {
+        if (!listening)
+            busquedaPorVoz();
+        else
+            cancelarBusquedaPorVoz();
+        });
+    } catch (ReferenceError){
+        console.error("Webkit Speech Recognition not supported in this browser.");
+    }
+    
     // add nfc reader
     const nfcReader = document.createElement("img");
     nfcReader.src = "icon-nfc.png";
@@ -447,6 +580,7 @@ const loadMain = async () => {
 const toggleFavourite = async (product) => {
     // update products list
     product.favourite = !product.favourite;
+    toggleHeart(product);
 
     // send products list
     await fetchProducts("send");
@@ -459,25 +593,40 @@ const toggleCart = async (product) => {
         do {
             numero = prompt("Por favor ingresa un número entre 1 y 100:");
             if (numero === null) {
-                return;
+                return -1;
             }
             numero = parseInt(numero); // Convertir el valor ingresado a un número entero
         } while (isNaN(numero) || numero < 1 || numero > 100); // Repetir hasta que se ingrese un número válido
     }
     product.quantity = numero;
     product.cart = !product.cart;
+    toggleCartInfo(product);
 
     // send products list
     await fetchProducts("send");
+    return 0;
 }
+
+let recognition;
+try {
+    recognition = new webkitSpeechRecognition();
+} catch (ReferenceError) {}
+
 
 //busqueda por voz
 function busquedaPorVoz() {
-    const recognition = new webkitSpeechRecognition();
+    if (!webkitSpeechRecognition) {
+        console.error("Webkit Speech Recognition not supported in this browser.");
+        return;
+    }
+
+    document.getElementById("search_by_voice_icon").style.backgroundColor = "darkred";
+    
     recognition.lang = 'en-GB'; // Establece el idioma
     recognition.interimResults = false; // Para obtener resultados intermedios o no
 
     recognition.start(); // Inicia la escucha por voz
+    listening = true
 
     recognition.onresult = (event) => {
         const result = event.results[0][0].transcript;
@@ -487,9 +636,15 @@ function busquedaPorVoz() {
             loadProductInfo(product_obj[0]);
             //alert("producto econtrado");
         } else {
-            alert("producto no econtrado");
+            alert("producto no encontrado");
         }
     };
+}
+
+function cancelarBusquedaPorVoz () {
+    document.getElementById("search_by_voice_icon").style.backgroundColor = "transparent";
+    recognition.stop();
+    listening = false;
 }
 
 // Función para manejar el evento de movimiento del dispositivo

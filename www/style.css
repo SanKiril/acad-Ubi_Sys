@@ -12,7 +12,7 @@
 }
 
 html
-{
+{ 
   width: 100dvw;
   height: 100dvh;
   touch-action: manipulation;
@@ -118,6 +118,8 @@ li
   padding-top: 5%;
   background-color: whitesmoke;
   border-radius: 15px;
+
+  position: relative;
 }
 
 .products-list-item>img
@@ -305,4 +307,36 @@ li
   left: 50%;
   right: 50%;
   transform: translate(-50%, -50%);
+}
+
+.product_price {
+  border-top-right-radius: 15px;
+  text-align: center;
+  background-color: greenyellow;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 16%;
+  width: 30%;
+}
+
+.product_quantity {
+  border-top-left-radius: 15px;
+  text-align: center;
+  background-color: lightcoral;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 16%;
+  width: 30%;
+}
+
+.fav_corner_icon {
+  position: absolute;
+  --padding: 6px;
+  bottom:var(--padding);
+  left: var(--padding);
+  z-index: 1000;
+  padding: 0 !important;
+  background-color: transparent !important;
 }
