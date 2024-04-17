@@ -14,7 +14,7 @@
 html
 { 
   width: 100dvw;
-  height: 100dvh;
+  height: 100dvh;   
   touch-action: manipulation;
 }
 
@@ -359,7 +359,10 @@ li
 }
 
 
-#drugged{
+#drag_image{
+  width: 100px;
+  background-color: lightgrey;
+  border-radius: 10px;
   position: absolute;
   opacity: .7;
 }

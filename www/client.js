@@ -100,7 +100,7 @@ function toggleCartInfo(product) {
 
 let pressTimeout;
 let draggedObject = null;
-let draggedShow = null;
+let dragImage = null;
 const loadList = async (listType) => {
     await new Promise(resolve => setTimeout(resolve, 100));
     if (localStorage.getItem("firstTime") == "true") {
@@ -140,44 +140,78 @@ const loadList = async (listType) => {
         const productItem = document.createElement("li");
         productItem.classList.add("products-list-item");
         productItem.id = product.name;
-        productItem.draggable = true;
         productItem.style.position = "relative";
         
         list.appendChild(productItem);
         toggleHeart(product);
         toggleCartInfo(product);
+        let dragging = false;
+        let dragTimeout;
 
         productItem.addEventListener("pointerdown", (event) => {
-            event.preventDefault();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             draggedObject = PointerPosition.closest('li').id;
-            draggedShow = document.createElement("img");
-            draggedShow.src = getProduct(draggedObject).image;
-            draggedShow.id = "drugged";
-            draggedShow.style.width = "17%";
-            draggedShow.style.backgroundColor = "lightgrey";
-            draggedShow.style.borderRadius = "10px";
-            document.body.appendChild(draggedShow);
-            draggedShow.style.top = event.clientY - draggedShow.offsetHeight / 2 + 'px';
-            draggedShow.style.left = event.clientX - draggedShow.offsetWidth / 2 + 'px';
+
+            dragImage = document.createElement("img");
+            dragImage.src = getProduct(draggedObject).image;
+            dragImage.id = "drag_image";
+            dragImage.style.top = event.clientY - dragImage.offsetHeight / 2 + 'px';
+            dragImage.style.left = event.clientX - dragImage.offsetWidth / 2 + 'px';
+
+            dragTimeout = setTimeout((() => {
+                dragging = true;
+            }),  50)
         });
         
         document.body.addEventListener("pointermove", (event) => {
+            if (!dragging || !dragImage) {
+                return;
+            }
+            if (!document.body.contains(dragImage))
+                document.body.appendChild(dragImage);
             if (pressTimeout)
                 clearTimeout(pressTimeout);  // clear the keep pressed for two seconds timeout
-            if (draggedShow){
+            if (dragImage){
                 // move the dragged image to the cursor's location
-                draggedShow.style.left = (event.clientX - draggedShow.offsetWidth / 2) + 'px';
-                draggedShow.style.top = (event.clientY - draggedShow.offsetHeight / 2) + 'px';
+                dragImage.style.left = (event.clientX - dragImage.offsetWidth / 2) + 'px';
+                dragImage.style.top = (event.clientY - dragImage.offsetHeight / 2) + 'px';
             }
         });
 
-        document.body.addEventListener("pointerup", (event) => {
-            if (draggedShow){
-                document.body.removeChild(draggedShow);
-                draggedShow = null;
+        document.body.addEventListener("mouseleave", (_event) => {
+            if (pressTimeout)
+            clearTimeout(pressTimeout);
+            if (dragTimeout)
+                clearTimeout(dragTimeout);
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
             }
-            event.preventDefault();
+            dragImage = null;
+            dragging = false;
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
+                dragImage = null;
+            }
+        })
+
+        document.body.addEventListener("pointerup", (event) => {
+            if (pressTimeout)
+                clearTimeout(pressTimeout);
+            if (dragTimeout)
+                clearTimeout(dragTimeout);
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
+            }
+            dragImage = null;
+            dragging = false;
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
+                dragImage = null;
+            }
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             const dropObject = PointerPosition.closest('li');
             if (!dropObject)
