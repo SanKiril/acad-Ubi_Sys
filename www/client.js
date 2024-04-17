@@ -189,15 +189,16 @@ const loadList = async (listType) => {
             if (!dragging || !dragImage) {
                 return;
             }
-            if (pressTimeout)
-                clearTimeout(pressTimeout);  // clear the keep pressed for two seconds timeout
+            const x_position = event.clientX - dragImage.offsetWidth / 2;
+            const y_position = event.clientY - dragImage.offsetHeight / 2;
+            const big_position_change = Math.abs(x_position - initial_x) > 5 || Math.abs(y_position - initial_y) > 5;
+            if (big_position_change && pressTimeout)
+                clearTimeout(pressTimeout);
             if (dragImage){
-                const x_position = event.clientX - dragImage.offsetWidth / 2;
-                const y_position = event.clientY - dragImage.offsetHeight / 2;
                 if (x_position < 0 || x_position > window.innerWidth || y_position < 0 || y_position > window.innerHeight) {
                     return;
                 } else {
-                    if (!document.body.contains(dragImage) && !(Math.abs(x_position - initial_x) < 5 || Math.abs(y_position - initial_y) < 5))
+                    if (!document.body.contains(dragImage) && big_position_change)
                         document.body.appendChild(dragImage);
                     dragImage.style.top = y_position + 'px';
                     dragImage.style.left = x_position + 'px';
@@ -314,14 +315,7 @@ const loadList = async (listType) => {
             }, 1000);
     });
 
-    // clean variables
-    list.addEventListener("pointermove", () => {
-        clearTimeout(pressTimeout);
-    })
-
     list.addEventListener("pointerup", event => {
-        // 
-
         clearTimeout(pressTimeout);
         const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
         if (!PointerPosition)
