@@ -160,14 +160,16 @@ const loadList = async (listType) => {
 
             dragTimeout = setTimeout((() => {
                 dragging = true;
-            }),  50)
+            }),  100)
         });
 
         const removeDragImage = () => {
+            dragging = false;
             if (pressTimeout)
             clearTimeout(pressTimeout);
             if (dragTimeout)
                 clearTimeout(dragTimeout);
+
             if (!dragImage)
                 return;
             if (document.body.contains(dragImage)) {
@@ -175,12 +177,6 @@ const loadList = async (listType) => {
                 document.body.removeChild(dragImage);
             }
             dragImage = null;
-            dragging = false;
-            if (document.body.contains(dragImage)) {
-                dragging = false;
-                document.body.removeChild(dragImage);
-                dragImage = null;
-            }
         }
         
         document.body.addEventListener("pointermove", (event) => {
