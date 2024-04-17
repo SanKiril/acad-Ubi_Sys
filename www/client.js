@@ -155,6 +155,8 @@ const loadList = async (listType) => {
             draggedShow.src = getProduct(draggedObject).image;
             draggedShow.id = "drugged";
             draggedShow.style.width = "17%";
+            draggedShow.style.backgroundColor = "lightgrey";
+            draggedShow.style.borderRadius = "10px";
             document.body.appendChild(draggedShow);
             draggedShow.style.top = event.clientY - draggedShow.offsetHeight / 2 + 'px';
             draggedShow.style.left = event.clientX - draggedShow.offsetWidth / 2 + 'px';
@@ -162,10 +164,9 @@ const loadList = async (listType) => {
         
         document.body.addEventListener("pointermove", (event) => {
             if (pressTimeout)
-                clearTimeout(pressTimeout);
-            // Add your logic here to handle the movement of the dragged object
-            // For example, you can update the position of a visual representation of the dragged object
+                clearTimeout(pressTimeout);  // clear the keep pressed for two seconds timeout
             if (draggedShow){
+                // move the dragged image to the cursor's location
                 draggedShow.style.left = (event.clientX - draggedShow.offsetWidth / 2) + 'px';
                 draggedShow.style.top = (event.clientY - draggedShow.offsetHeight / 2) + 'px';
             }
