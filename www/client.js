@@ -147,6 +147,8 @@ const loadList = async (listType) => {
         toggleCartInfo(product);
         let dragging = false;
         let dragTimeout;
+        let initial_x;
+        let initial_y;
 
         productItem.addEventListener("pointerdown", (event) => {
             dragging = false;
@@ -158,6 +160,9 @@ const loadList = async (listType) => {
             dragImage.id = "drag_image";
             dragImage.style.top = event.clientY - dragImage.offsetHeight / 2 + 'px';
             dragImage.style.left = event.clientX - dragImage.offsetWidth / 2 + 'px';
+
+            initial_x = event.clientX;
+            initial_y = event.clientY;
 
             dragTimeout = setTimeout((() => {
                 dragging = true;
@@ -184,19 +189,16 @@ const loadList = async (listType) => {
             if (!dragging || !dragImage) {
                 return;
             }
-            if (!document.body.contains(dragImage))
-                document.body.appendChild(dragImage);
             if (pressTimeout)
                 clearTimeout(pressTimeout);  // clear the keep pressed for two seconds timeout
             if (dragImage){
                 const x_position = event.clientX - dragImage.offsetWidth / 2;
                 const y_position = event.clientY - dragImage.offsetHeight / 2;
-                if (x_position - dragImage.style.left < 20 || y_position - dragImage.style.top < 20) {
-                    return;
-                }
                 if (x_position < 0 || x_position > window.innerWidth || y_position < 0 || y_position > window.innerHeight) {
-                    removeDragImage();
+                    return;
                 } else {
+                    if (!document.body.contains(dragImage) && !(Math.abs(x_position - initial_x) < 5 || Math.abs(y_position - initial_y) < 5))
+                        document.body.appendChild(dragImage);
                     dragImage.style.top = y_position + 'px';
                     dragImage.style.left = x_position + 'px';
                 }
