@@ -20,21 +20,6 @@ const loadFormNFC = async () => {
     inputName.required = true;
     formProductInfo.appendChild(inputName);
 
-    // add image input
-    const inputImage = document.createElement("input");
-    inputImage.type = "text";
-    inputImage.name = "image";
-    inputImage.placeholder = "Image URL";
-    inputImage.required = true;
-    formProductInfo.appendChild(inputImage);
-
-    // add product info input
-    const inputProductInfo = document.createElement("textarea");
-    inputProductInfo.name = "product_info";
-    inputProductInfo.placeholder = "Product info";
-    inputProductInfo.required = true;
-    formProductInfo.appendChild(inputProductInfo);
-
     // add submit
     const inputSubmit = document.createElement("input");
     inputSubmit.type = "submit";
@@ -46,8 +31,6 @@ const loadFormNFC = async () => {
         if (formProductInfo.checkValidity()) {
             const product = {
                 name: inputName.value,
-                image: inputImage.value,
-                product_info: inputProductInfo.value
             }
 
             // write NFC

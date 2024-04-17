@@ -552,7 +552,9 @@ const loadFooter = () => {
     
         // read nfc
         nfcReader.addEventListener("pointerdown", async () => {
-            const product = await utils.handleNFC("read");
+            let product = await utils.handleNFC("read");
+            product = products.filter((item) => item.name === product.name)[0];
+            console.log(product);
             if (product) {
                 loadProductInfo(product);
             }
