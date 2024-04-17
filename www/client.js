@@ -162,6 +162,26 @@ const loadList = async (listType) => {
                 dragging = true;
             }),  50)
         });
+
+        const removeDragImage = () => {
+            if (pressTimeout)
+            clearTimeout(pressTimeout);
+            if (dragTimeout)
+                clearTimeout(dragTimeout);
+            if (!dragImage)
+                return;
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
+            }
+            dragImage = null;
+            dragging = false;
+            if (document.body.contains(dragImage)) {
+                dragging = false;
+                document.body.removeChild(dragImage);
+                dragImage = null;
+            }
+        }
         
         document.body.addEventListener("pointermove", (event) => {
             if (!dragging || !dragImage) {
@@ -172,47 +192,24 @@ const loadList = async (listType) => {
             if (pressTimeout)
                 clearTimeout(pressTimeout);  // clear the keep pressed for two seconds timeout
             if (dragImage){
-                // move the dragged image to the cursor's location
-                dragImage.style.left = (event.clientX - dragImage.offsetWidth / 2) + 'px';
-                dragImage.style.top = (event.clientY - dragImage.offsetHeight / 2) + 'px';
+                const x_position = event.clientX - dragImage.offsetWidth / 2;
+                const y_position = event.clientY - dragImage.offsetHeight / 2;
+                if (x_position < 0 || x_position > window.innerWidth || y_position < 0 || y_position > window.innerHeight) {
+                    removeDragImage();
+                } else {
+                    dragImage.style.top = y_position + 'px';
+                    dragImage.style.left = x_position + 'px';
+                }
             }
         });
 
-        document.body.addEventListener("mouseleave", (_event) => {
-            if (pressTimeout)
-            clearTimeout(pressTimeout);
-            if (dragTimeout)
-                clearTimeout(dragTimeout);
-            if (document.body.contains(dragImage)) {
-                dragging = false;
-                document.body.removeChild(dragImage);
-            }
-            dragImage = null;
-            dragging = false;
-            if (document.body.contains(dragImage)) {
-                dragging = false;
-                document.body.removeChild(dragImage);
-                dragImage = null;
-            }
-        })
+        document.body.addEventListener("mouseleave", removeDragImage);
 
         document.body.addEventListener("pointerup", (event) => {
-            if (pressTimeout)
-                clearTimeout(pressTimeout);
-            if (dragTimeout)
-                clearTimeout(dragTimeout);
-            if (document.body.contains(dragImage)) {
-                dragging = false;
-                document.body.removeChild(dragImage);
-            }
-            dragImage = null;
-            dragging = false;
-            if (document.body.contains(dragImage)) {
-                dragging = false;
-                document.body.removeChild(dragImage);
-                dragImage = null;
-            }
+            removeDragImage();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+            if (!PointerPosition)
+                return;
             const dropObject = PointerPosition.closest('li');
             if (!dropObject)
                 return;
@@ -325,6 +322,8 @@ const loadList = async (listType) => {
 
         clearTimeout(pressTimeout);
         const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+        if (!PointerPosition)
+            return;
         const dropObject = PointerPosition.closest('li');
         if (!dropObject)
             return;
