@@ -357,3 +357,9 @@ li
   padding: 0 !important;
   background-color: transparent !important;
 }
+
+
+#drugged{
+  position: absolute;
+  opacity: .7;
+}

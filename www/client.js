@@ -99,7 +99,7 @@ function toggleCartInfo(product) {
 }
 
 let draggedObject = null;
-
+let draggedShow = null;
 const loadList = async (listType) => {
     await new Promise(resolve => setTimeout(resolve, 100));
     if (localStorage.getItem("firstTime") == "true") {
@@ -150,9 +150,25 @@ const loadList = async (listType) => {
         productItem.addEventListener("pointerdown", (event) => {
             event.preventDefault();
             draggedObject = event.target.id || event.target.alt || event.target.textContent;
+            draggedShow = event.target.cloneNode(true);
+            draggedShow.id = "drugged";
+            document.body.appendChild(draggedShow);
         });
         
+        productItem.addEventListener("pointermove", (event) => {
+            // Add your logic here to handle the movement of the dragged object
+            // For example, you can update the position of a visual representation of the dragged object
+            if (draggedShow){
+            draggedShow.style.position.x = document
+            draggedShow.style.left = (x) + 'px';
+            draggedShow.style.top = (y) + 'px';}
+        });
+
         productItem.addEventListener("pointerup", (event) => {
+            if (draggedShow){
+                document.body.removeChild(draggedShow);
+                draggedShow = null;
+            }
             event.preventDefault();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             const dropZone = PointerPosition.closest('li').id;
