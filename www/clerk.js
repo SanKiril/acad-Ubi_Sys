@@ -30,7 +30,7 @@ const loadFormNFC = async () => {
         event.preventDefault();
         if (formProductInfo.checkValidity()) {
             const product = {
-                name: inputName.value,
+                name: inputName.value
             }
 
             // write NFC
