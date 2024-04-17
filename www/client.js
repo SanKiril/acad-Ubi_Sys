@@ -134,8 +134,14 @@ const loadList = async (listType) => {
     }
     filteredProducts.sort((a, b) => b.order - a.order);
 
+    let algoEnCarrito = false;
+
     // add products to list
     filteredProducts.forEach(product => {
+        if (product.cart == true && !algoEnCarrito) {
+            algoEnCarrito = !algoEnCarrito
+        }
+
         // product item
         const productItem = document.createElement("li");
         productItem.classList.add("products-list-item");
@@ -152,6 +158,8 @@ const loadList = async (listType) => {
 
         productItem.addEventListener("pointerdown", (event) => {
             dragging = false;
+            console.log("prueba");
+            console.log(event.target.closest(".products-list-item"));
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             draggedObject = PointerPosition.closest('li').id;
 
@@ -252,6 +260,18 @@ const loadList = async (listType) => {
         productItem.appendChild(productName);
     });
 
+    if (listType == "cartList" && algoEnCarrito) {
+        let botonPagar = document.createElement("button");
+        botonPagar.id = "payment";
+        botonPagar.style.borderRadius = "100px";
+        botonPagar.className = "botonPagar";
+        botonPagar.setAttribute("data-alt", "Pagar");
+        utils.mainBody.appendChild(botonPagar);
+        botonPagar.addEventListener("pointerdown", function() {
+            loadRecipt(); 
+        });
+    }
+
     // load product info
     let startY = NaN;
     let endY = NaN;
@@ -275,6 +295,7 @@ const loadList = async (listType) => {
         startY = event.clientY;
         pressStartTime = Date.now();
         firstTarget = event.target.closest(".products-list-item");
+        console.log(firstTarget)
         if (!firstTarget) {
             return;
         }
@@ -282,6 +303,7 @@ const loadList = async (listType) => {
         // Mantener presionado por 1 segundo para añadir/quitar al carrito
         pressTimeout = setTimeout(async () => {
             if (firstTarget) {
+                console.log("prueba 2");
                 const index = Array.from(list.children).indexOf(firstTarget);
                 const product = filteredProducts[index];
                 navigator.vibrate(200);
@@ -600,7 +622,6 @@ const loadFooter = () => {
     
     // add nfc reader if enabled in browser
     try {
-        new NDEFReader();
         const nfcReader = document.createElement("img");
         nfcReader.src = "icon-nfc.png";
         nfcReader.alt = "NFC Reader";
@@ -767,6 +788,110 @@ function handleDeviceMotion(event) {
                 loadFavourites();
             }
         }
+        // Agitar para pagar
+        else if(document.querySelector("h1").innerHTML== "Recipt") {
+            pagar();
+        }
+    }
+}
+
+function loadRecipt () {
+    // clear main body
+    utils.mainBody.innerHTML = "";
+
+    // rename header
+    utils.loadHeader("Recipt");
+    let totalAPagar = 0;
+    const list = document.createElement("ul");
+    list.id = "listRecipt";
+    //list.classList.add("products-list");
+    list.style.userSelect = "none";
+    list.classList.add("info-container");
+    utils.mainBody.appendChild(list);
+    products.forEach((product) => {
+        if (product.cart) {
+            const element = document.createElement("div");
+            element.style.display = 'flex';
+            element.style.justifyContent = 'space-between';
+
+            const precio_total_producto = product.quantity * product.price;
+            totalAPagar += precio_total_producto;
+
+            const productName = document.createElement("p");
+            const unitQuantityPrice = document.createElement("p");
+            const productPrice = document.createElement("p");
+            productName.style.width = '33%';
+            unitQuantityPrice.style.width = '34%';
+            productPrice.style.display = 'flex';
+            productPrice.style.maxWidth = '33%';
+            productPrice.style.marginLeft = 'auto';
+
+            unitQuantityPrice.innerHTML = product.quantity  + " x " + product.price + " $ ";
+            productName.innerHTML = product.name;
+            productPrice.innerHTML = precio_total_producto.toFixed(2) +" $";
+
+            element.appendChild(productName);
+            element.appendChild(unitQuantityPrice);
+            element.appendChild(productPrice);
+
+            list.appendChild(element);
+        }
+    });
+
+    const lineaPuntos = document.createElement("p");
+    const numDashes = Math.floor(list.offsetWidth * 1/8); 
+    lineaPuntos.innerHTML = "-".repeat(numDashes);
+    lineaPuntos.style.textAlign = 'center';
+    list.appendChild(lineaPuntos);
+
+    const element = document.createElement("div");
+    element.style.display = 'flex';
+    element.style.justifyContent = 'space-between';
+    element.style.alignItems = 'center';
+    const precioTotlaObj = document.createElement("p");
+    const totalTxt = document.createElement("p");
+    precioTotlaObj.innerHTML = totalAPagar.toFixed(2).toString() + " $";
+    totalTxt.innerHTML = "Total: ";
+
+    element.appendChild(totalTxt);
+    element.appendChild(precioTotlaObj);
+    list.appendChild(element);
+
+    // añadir dibujo de nfc o sacudir
+    const simbolContainer = document.createElement("div");
+    simbolContainer.style.display = 'flex';
+    simbolContainer.style.justifyContent = 'space-between';
+    simbolContainer.style.width = '100%';
+    utils.mainBody.appendChild(simbolContainer);
+    const nfcReader = document.createElement("img");
+    nfcReader.src = "icon-nfc.png";
+    nfcReader.alt = "NFC Reader img";
+    nfcReader.style.width = '90%';
+    nfcReader.style.padding = '10%';
+    simbolContainer.appendChild(nfcReader);
+
+    const shakeImg = document.createElement("img");
+    shakeImg.src = "icon-shake.png";
+    shakeImg.alt = "NFC Reader";
+    shakeImg.style.width = '90%';
+    shakeImg.style.padding = '10%';
+    simbolContainer.appendChild(shakeImg);
+}
+
+function pagar() {
+    const confirmation = confirm("¿Estás seguro de vaciar el carrito?");
+    if (confirmation) {
+        console.log("Se ha detectado una sacudida. Vaciar carrito.");
+        products.forEach((product) => {
+            if (product.cart) {
+                toggleCart(product);
+            }
+        });
+        console.log("Carrito vaciado");
+        loadMain();
+    } else {
+        console.log("Operación cancelada. El carrito no se ha vaciado.");
+        loadCart();
     }
 }
 

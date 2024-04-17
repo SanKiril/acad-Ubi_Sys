@@ -358,6 +358,18 @@ li
   background-color: transparent !important;
 }
 
+.botonPagar {
+  background-color: green;
+  width: 70%;
+  height: 10%;
+  background-image: url('icon-pay.png');
+  background-repeat: no-repeat;
+  background-position: center; 
+  background-size: contain;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
 
 #drag_image{
   width: 100px;
