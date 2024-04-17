@@ -156,7 +156,6 @@ const loadList = async (listType) => {
             event.preventDefault();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             const dropZone = PointerPosition.closest('li').id;
-            console.log("Dropzone = ",dropZone);
             if (draggedObject != dropZone){
             let dragged_order;
             let new_order;
@@ -176,8 +175,6 @@ const loadList = async (listType) => {
                     element.order = new_order;
                 }
             });
-            console.log("new_order = " + new_order);
-            console.log("dragged_order = " + dragged_order)
             utils.mainBody.innerHTML = "";
             loadList();
         }});     
@@ -268,7 +265,10 @@ const loadList = async (listType) => {
 
         clearTimeout(pressTimeout);
         const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
-        const dropZone = PointerPosition.closest('li').id;
+        const dropObject = PointerPosition.closest('li');
+        if (!dropObject)
+            return;
+        const dropZone = dropObject.id;
         console.log(dropZone);
         if (draggedObject == dropZone){
         const targetProduct = event.target.closest(".products-list-item");
