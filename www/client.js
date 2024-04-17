@@ -103,7 +103,6 @@ let draggedObject = null;
 const loadList = async (listType) => {
     await new Promise(resolve => setTimeout(resolve, 100));
     if (localStorage.getItem("firstTime") == "true") {
-        console.log("first_time_alert");
         first_time_alert();
         localStorage.setItem("firstTime", false);
     }
@@ -269,7 +268,6 @@ const loadList = async (listType) => {
         if (!dropObject)
             return;
         const dropZone = dropObject.id;
-        console.log(dropZone);
         if (draggedObject == dropZone){
         const targetProduct = event.target.closest(".products-list-item");
         const pressDuration = Date.now() - pressStartTime;
@@ -663,7 +661,6 @@ function busquedaPorVoz() {
 
     recognition.onresult = (event) => {
         const result = event.results[0][0].transcript;
-        console.log('Texto capturado:', result);
         const product_obj = products.filter(producto => producto.name.toLowerCase() == result.toLowerCase());
         if (product_obj.length > 0) {
             loadProductInfo(product_obj[0]);
@@ -694,31 +691,23 @@ function handleDeviceMotion(event) {
         if(document.querySelector("h1").innerHTML== "Cart") {
             const confirmation = confirm("¿Estás seguro de vaciar el carrito?");
             if (confirmation) {
-                console.log("Se ha detectado una sacudida. Vaciar carrito.");
                 products.forEach((product) => {
                     if (product.cart) {
                         toggleCart(product);
                     }
                 });
-                console.log("Carrito vaciado");
                 loadCart();
-            } else {
-                console.log("Operación cancelada. El carrito no se ha vaciado.");
             }
         // Agitar desde favoritos para borrar todos los favoritos
         } else if(document.querySelector("h1").innerHTML== "Favourites") {
             const confirmation = confirm("¿Estás seguro de vaciar la lista de favoritos?");
             if (confirmation) {
-                console.log("Se ha detectado una sacudida. Vaciar favoritos.");
                 products.forEach((product) => {
                     if (product.favourite) {
                         toggleFavourite(product);
                     }
                 });
-                console.log("favoritos vaciado");
                 loadFavourites();
-            } else {
-                console.log("Operación cancelada. La lista de favoritos no se ha vaciado.");
             }
         }
     }
