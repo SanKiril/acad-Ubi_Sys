@@ -98,8 +98,9 @@ function toggleCartInfo(product) {
     }
 }
 
+let pressTimeout;
 let draggedObject = null;
-
+let draggedShow = null;
 const loadList = async (listType) => {
     await new Promise(resolve => setTimeout(resolve, 100));
     if (localStorage.getItem("firstTime") == "true") {
@@ -148,13 +149,39 @@ const loadList = async (listType) => {
 
         productItem.addEventListener("pointerdown", (event) => {
             event.preventDefault();
-            draggedObject = event.target.id || event.target.alt || event.target.textContent;
+            const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+            draggedObject = PointerPosition.closest('li').id;
+            draggedShow = document.createElement("img");
+            draggedShow.src = getProduct(draggedObject).image;
+            draggedShow.id = "drugged";
+            draggedShow.style.width = "17%";
+            document.body.appendChild(draggedShow);
+            draggedShow.style.top = event.clientY - draggedShow.offsetHeight / 2 + 'px';
+            draggedShow.style.left = event.clientX - draggedShow.offsetWidth / 2 + 'px';
         });
         
-        productItem.addEventListener("pointerup", (event) => {
+        document.body.addEventListener("pointermove", (event) => {
+            if (pressTimeout)
+                clearTimeout(pressTimeout);
+            // Add your logic here to handle the movement of the dragged object
+            // For example, you can update the position of a visual representation of the dragged object
+            if (draggedShow){
+                draggedShow.style.left = (event.clientX - draggedShow.offsetWidth / 2) + 'px';
+                draggedShow.style.top = (event.clientY - draggedShow.offsetHeight / 2) + 'px';
+            }
+        });
+
+        document.body.addEventListener("pointerup", (event) => {
+            if (draggedShow){
+                document.body.removeChild(draggedShow);
+                draggedShow = null;
+            }
             event.preventDefault();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
-            const dropZone = PointerPosition.closest('li').id;
+            const dropObject = PointerPosition.closest('li');
+            if (!dropObject)
+                return;
+            const dropZone = dropObject.id;
             if (draggedObject != dropZone){
             let dragged_order;
             let new_order;
@@ -196,7 +223,6 @@ const loadList = async (listType) => {
     let firstClick = 0;
     let firstTarget = null;
     let timeoutId;
-    let pressTimeout;
     let pressStartTime = 0;
 
     list.addEventListener("contextmenu", event => {
