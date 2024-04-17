@@ -149,7 +149,8 @@ const loadList = async (listType) => {
 
         productItem.addEventListener("pointerdown", (event) => {
             event.preventDefault();
-            draggedObject = event.target.id || event.target.alt || event.target.textContent;
+            const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+            draggedObject = PointerPosition.closest('li').id;
             draggedShow = event.target.cloneNode(true);
             draggedShow.id = "drugged";
             document.body.appendChild(draggedShow);
@@ -159,9 +160,8 @@ const loadList = async (listType) => {
             // Add your logic here to handle the movement of the dragged object
             // For example, you can update the position of a visual representation of the dragged object
             if (draggedShow){
-            draggedShow.style.position.x = document
-            draggedShow.style.left = (x) + 'px';
-            draggedShow.style.top = (y) + 'px';}
+            draggedShow.style.left = (event.clientX) + 'px';
+            draggedShow.style.top = (event.clientY) + 'px';}
         });
 
         productItem.addEventListener("pointerup", (event) => {
