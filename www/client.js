@@ -12,7 +12,7 @@ socket.on("reload", () => {
     window.location.reload();   
 });
 
-const fetchProducts = async (method) => {
+const fetchProducts = async (method="") => {
     // adjust fetch options
     let options = {};
     if (method === "send") {
@@ -112,9 +112,9 @@ const loadList = async (listType) => {
     list.style.userSelect = "none";
     utils.mainBody.appendChild(list);
 
-    if (products == {}) {
+    while (products.length === 0) {
+        await fetchProducts();
         window.location.reload();
-        return;
     }
 
     // filter products
@@ -648,7 +648,6 @@ function busquedaPorVoz() {
     listening = true
 
     recognition.onend = () => {
-        console.log('El reconocimiento de voz se detuvo automáticamente.');
         listening = false
         document.getElementById("search_by_voice_icon").style.backgroundColor = "transparent";
     };

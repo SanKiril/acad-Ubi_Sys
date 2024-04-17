@@ -22,6 +22,7 @@ const productsJson = `${projectDirectory}/data/products.json`;
 const productsDefaultJson = `${projectDirectory}/data/products-default.json`;
 if (!fs.existsSync(productsJson))
   fs.readFile(productsDefaultJson, 'utf8', (err, data) => {
+    console.log("Products.json not found, copying default products.json...");
     if (err) {
       console.error(err);
       return;
@@ -52,13 +53,13 @@ const watcher = chokidar.watch(filesToCheck);
 watcher.on('change', reloadModule);
 
 // serve static files
-app.use(express.static(`${projectDirectory}/www`));
-app.use(express.static(`${projectDirectory}/media`));
-app.use(express.static(`${projectDirectory}/data`));
+app.use(express.static(`www`));
+app.use(express.static(`media`));
+app.use(express.static(`data`));
 
 // serve default file
 app.get('/', (_, res) => {
-  res.sendFile("client.html", { root: `${projectDirectory}/www` }, (err) => {
+  res.sendFile("client.html", { root: `www` }, (err) => {
     if (err) {
       console.error("Ejecutar este archivo desde el directorio base del projecto:\n\tnode server/server.js");
       console.error(err);
