@@ -149,6 +149,7 @@ const loadList = async (listType) => {
         let dragTimeout;
 
         productItem.addEventListener("pointerdown", (event) => {
+            dragging = false;
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             draggedObject = PointerPosition.closest('li').id;
 
@@ -190,6 +191,9 @@ const loadList = async (listType) => {
             if (dragImage){
                 const x_position = event.clientX - dragImage.offsetWidth / 2;
                 const y_position = event.clientY - dragImage.offsetHeight / 2;
+                if (x_position - dragImage.style.left < 20 || y_position - dragImage.style.top < 20) {
+                    return;
+                }
                 if (x_position < 0 || x_position > window.innerWidth || y_position < 0 || y_position > window.innerHeight) {
                     removeDragImage();
                 } else {
