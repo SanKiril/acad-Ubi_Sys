@@ -98,6 +98,8 @@ function toggleCartInfo(product) {
     }
 }
 
+let draggedObject = null;
+
 const loadList = async (listType) => {
     await new Promise(resolve => setTimeout(resolve, 100));
     if (localStorage.getItem("firstTime") == "true") {
@@ -145,27 +147,24 @@ const loadList = async (listType) => {
         toggleHeart(product);
         toggleCartInfo(product);
 
-        productItem.addEventListener("dragstart", (event) => {
-            event.dataTransfer.setData("text/plain", event.target.id);
-        })
-        productItem.addEventListener("dragover", (event) => {
+        productItem.addEventListener("pointerdown", (event) => {
             event.preventDefault();
-        })
-
-        productItem.addEventListener("drop", (event) => {
+            draggedObject = event.target.id || event.target.alt || event.target.textContent;
+        });
+        
+        productItem.addEventListener("pointerup", (event) => {
             event.preventDefault();
-            const data = event.dataTransfer.getData("text");
-            const draggedObject = document.getElementById(data);
-            const dropZone = event.target.alt || event.target.dataset.text || event.target.id;
+            const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+            const dropZone = PointerPosition.closest('li').id;
+            console.log("Dropzone = ",dropZone);
+            if (draggedObject != dropZone){
             let dragged_order;
             let new_order;
             products.forEach(element => {
                 if (dropZone == element.name){
-                    //console.log(element, element.order);
                     new_order = element.order;
                 }
-                else if (draggedObject.id == element.name){
-                    //console.log(element, element.order);
+                else if (draggedObject == element.name){
                     dragged_order = element.order;
                 }
             });
@@ -173,13 +172,15 @@ const loadList = async (listType) => {
                 if (dropZone == element.name){
                     element.order = dragged_order;
                 }
-                else if (draggedObject.id == element.name){
+                else if (draggedObject == element.name){
                     element.order = new_order;
                 }
             });
+            console.log("new_order = " + new_order);
+            console.log("dragged_order = " + dragged_order)
             utils.mainBody.innerHTML = "";
             loadList();
-        })
+        }});     
         // product item image
         const productImage = document.createElement("img");
         productImage.src = product.image;
@@ -213,6 +214,7 @@ const loadList = async (listType) => {
     });
 
     list.addEventListener("pointerdown", event => {
+        draggedObject = event.target.id || event.target.alt || event.target.textContent;
         startY = event.clientY;
         pressStartTime = Date.now();
         firstTarget = event.target.closest(".products-list-item");
@@ -263,7 +265,12 @@ const loadList = async (listType) => {
 
     list.addEventListener("pointerup", event => {
         // 
+
         clearTimeout(pressTimeout);
+        const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
+        const dropZone = PointerPosition.closest('li').id;
+        console.log(dropZone);
+        if (draggedObject == dropZone){
         const targetProduct = event.target.closest(".products-list-item");
         const pressDuration = Date.now() - pressStartTime;
 
@@ -321,7 +328,7 @@ const loadList = async (listType) => {
         if(firstClick > 0) {startY = NaN;} 
         if (firstClick == 2) {firstClick = 0
         } else {firstClick = 1;}
-    });
+    }});
 
     // obtain movment
     list.addEventListener("pointermove",event =>{
@@ -513,6 +520,7 @@ const loadFooter = () => {
 
     // load main
     search.addEventListener("pointerdown", () => {
+        
         loadMain();
     });
 
