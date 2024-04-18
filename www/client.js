@@ -158,12 +158,10 @@ const loadList = async (listType) => {
 
         productItem.addEventListener("pointerdown", (event) => {
             dragging = false;
-            console.log("prueba");
-            console.log(event.target.closest(".products-list-item"));
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             draggedObject = PointerPosition.closest('li').id;
 
-            dragImage = document.createElement("img");
+            dragImage = document.createElement("img")
             dragImage.src = getProduct(draggedObject).image;
             dragImage.id = "drag_image";
             dragImage.style.top = event.clientY - dragImage.offsetHeight / 2 + 'px';
@@ -194,14 +192,15 @@ const loadList = async (listType) => {
         }
         
         document.body.addEventListener("pointermove", (event) => {
-            if (!dragging || !dragImage) {
+            if (!dragging || !dragImage || draggedObject === null) {
                 return;
             }
             const x_position = event.clientX - dragImage.offsetWidth / 2;
             const y_position = event.clientY - dragImage.offsetHeight / 2;
             const big_position_change = Math.abs(x_position - initial_x) > 5 || Math.abs(y_position - initial_y) > 5;
-            if (big_position_change && pressTimeout)
+            if (big_position_change && pressTimeout) {
                 clearTimeout(pressTimeout);
+            }
             if (dragImage){
                 if (x_position < 0 || x_position > window.innerWidth || y_position < 0 || y_position > window.innerHeight) {
                     return;
@@ -214,9 +213,11 @@ const loadList = async (listType) => {
             }
         });
 
-        document.body.addEventListener("mouseleave", removeDragImage);
-
         document.body.addEventListener("pointerup", (event) => {
+            if (!dragging ||draggedObject ===null) {
+                removeDragImage();
+                return;
+            }
             removeDragImage();
             const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
             if (!PointerPosition)
@@ -277,6 +278,7 @@ const loadList = async (listType) => {
     let endY = NaN;
     let firstClick = 0;
     let firstTarget = null;
+    let firstTargetTemp = null;
     let timeoutId;
     let pressStartTime = 0;
 
@@ -286,29 +288,29 @@ const loadList = async (listType) => {
     });
 
     list.addEventListener("touchstart", event => {
-        event.preventDefault(); // Evitar vibración por long press
+        event.preventDefault();
         event.stopPropagation();
-    });
+        clearTimeout(pressTimeout); 
+        clearTimeout(timeoutId);
 
-    list.addEventListener("pointerdown", event => {
         draggedObject = event.target.id || event.target.alt || event.target.textContent;
-        startY = event.clientY;
+
+        startY = event.touches[0].clientY;
+
         pressStartTime = Date.now();
-        firstTarget = event.target.closest(".products-list-item");
-        console.log(firstTarget)
-        if (!firstTarget) {
+        firstTargetTemp = event.target.closest(".products-list-item");
+        if (!firstTargetTemp) {
             return;
         }
+        
 
         // Mantener presionado por 1 segundo para añadir/quitar al carrito
         pressTimeout = setTimeout(async () => {
-            if (firstTarget) {
-                console.log("prueba 2");
-                const index = Array.from(list.children).indexOf(firstTarget);
+            if (firstTargetTemp) {
+                const index = Array.from(list.children).indexOf(firstTargetTemp);
                 const product = filteredProducts[index];
-                navigator.vibrate(200);
                 firstClick = 0;
-                const rect = firstTarget.getBoundingClientRect();
+                const rect = firstTargetTemp.getBoundingClientRect();
                 let added_to_cart_image = document.createElement("img");
                 added_to_cart_image.style.zIndex = "1000";
                 added_to_cart_image.id = null;
@@ -318,42 +320,46 @@ const loadList = async (listType) => {
                 else
                     added_to_cart_image.src = "add-to-cart-icon.png";
                 let toggle_cart_result = await toggleCart(product, true);
-                if (toggle_cart_result == -1) {
-                    return;
-                };
-                added_to_cart_image.style.position = "absolute";
-                added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
-                added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
-                document.body.appendChild(added_to_cart_image);
 
-                setTimeout(() => {
-                    document.body.removeChild(added_to_cart_image);
-                    toggleCartInfo(product);
-                    if (listType == "cartList") {
-                        loadCart();
-                    }
-                }, 500);
+                draggedObject = null;
+                dragImage = null;
+                
+                if (!toggle_cart_result) {
+                    navigator.vibrate(200);
+                    added_to_cart_image.style.position = "absolute";
+                    added_to_cart_image.style.top = rect.top + (rect.height/4) + "px";
+                    added_to_cart_image.style.left = rect.left + (rect.width/4) + "px";
+                    document.body.appendChild(added_to_cart_image);
+
+                    setTimeout(() => {
+                        document.body.removeChild(added_to_cart_image);
+                        toggleCartInfo(product);
+                        if (listType == "cartList") {
+                            loadCart();
+                        }
+                    }, 500);
+                }
             }
-            }, 1000);
+            }, 1000); 
     });
 
     list.addEventListener("pointerup", event => {
         clearTimeout(pressTimeout);
+        clearTimeout(timeoutId);
         const PointerPosition = document.elementFromPoint(event.clientX, event.clientY);
-        if (!PointerPosition)
-            return;
+
+        if (!PointerPosition) {
+            return;}
         const dropObject = PointerPosition.closest('li');
-        if (!dropObject)
-            return;
+        if (!dropObject) {
+            return;}
         const dropZone = dropObject.id;
-        if (draggedObject == dropZone){
+
         const targetProduct = event.target.closest(".products-list-item");
         const pressDuration = Date.now() - pressStartTime;
-
         if (!targetProduct) {
             return;
         }
-
         // Doble click para añadir/quitar de favoritos
         if (firstTarget == targetProduct && firstClick == 1) {
             const index = Array.from(list.children).indexOf(targetProduct);
@@ -372,7 +378,8 @@ const loadList = async (listType) => {
             } else {
                 added_to_favourites_image.src = "heart-icon.png";
             }
-            toggleFavourite(product);
+            toggleFavourite(product); 
+            draggedObject = null;
 
             added_to_favourites_image.style.position = "absolute";
             added_to_favourites_image.style.top = rect.top + (rect.height/4) + "px";
@@ -386,12 +393,14 @@ const loadList = async (listType) => {
                 }
             }, 500);
         // Si no ha mantenido presionado significa que quiere ir a la pagina del producto
-        } else if(pressDuration < 1000){
+        } else if(pressDuration < 1000){ 
+            clearTimeout(timeoutId)
+            let tempstartY = startY
             timeoutId = setTimeout(() => {
                 if (isNaN(endY)) {
-                    endY = startY;
+                    endY = tempstartY;
                 }
-                if (targetProduct && (Math.abs(startY-endY) < 5 )) {
+                if (targetProduct && (Math.abs(tempstartY-endY) < 5 )) {
                     const index = Array.from(list.children).indexOf(targetProduct);
                     const product = filteredProducts[index];
                     firstClick = 0;
@@ -401,10 +410,11 @@ const loadList = async (listType) => {
         }
         // Ajustar variables
         endY = NaN;
+        firstTarget = firstTargetTemp;
         if(firstClick > 0) {startY = NaN;} 
         if (firstClick == 2) {firstClick = 0
         } else {firstClick = 1;}
-    }});
+    });
 
     // obtain movment
     list.addEventListener("pointermove",event =>{
@@ -742,7 +752,6 @@ function busquedaPorVoz() {
         const product_obj = products.filter(producto => producto.name.toLowerCase() == result.toLowerCase());
         if (product_obj.length > 0) {
             loadProductInfo(product_obj[0]);
-            //alert("producto econtrado");
         } else {
             alert("producto no encontrado");
         }
@@ -895,7 +904,6 @@ function pagar() {
     }
 }
 
-// Agregar un event listener para el evento devicemotion
 window.addEventListener("devicemotion", handleDeviceMotion);
 
 loadMain();
