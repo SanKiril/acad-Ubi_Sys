@@ -1,7 +1,7 @@
 export const mainBody = document.querySelector("main");
 
 
-const readNFC = async () => {
+export const readNFC = async () => {
     try {
         const ndef = new NDEFReader();
 
@@ -15,11 +15,12 @@ const readNFC = async () => {
             ndef.onreading = (event) => {
                 try {
                     // read only 1 record
-                    const productString = new TextDecoder().decode(event.message.records[0].data);  // from stream of bytes to string
-                    const product = JSON.parse(productString);  // from string to JSON
-
+                    let message = new TextDecoder().decode(event.message.records[0].data);  // from stream of bytes to string
+                    if (message !== "Payment" || message !== "payment") {
+                        message = JSON.parse(message);  // from string to JSON
+                    }
                     console.log("NFC message read successfully.");
-                    resolve(product);
+                    resolve(message);
                 }
                 catch (err) {
                     console.error("Error extracting the NFC token data:", err);
@@ -36,7 +37,7 @@ const readNFC = async () => {
     }
 };
 
-const writeNFC = async (product) => {
+export const writeNFC = async (product) => {
     try {
         const ndef = new NDEFReader();
         

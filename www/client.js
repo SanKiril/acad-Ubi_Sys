@@ -268,8 +268,22 @@ const loadList = async (listType) => {
         botonPagar.className = "botonPagar";
         botonPagar.setAttribute("data-alt", "Pagar");
         utils.mainBody.appendChild(botonPagar);
-        botonPagar.addEventListener("pointerdown", function() {
-            loadRecipt(); 
+
+        // load recipt
+        botonPagar.addEventListener("pointerdown", async function() {
+            loadRecipt();
+
+            // nfc for payment
+            let result = await utils.readNFC();
+            if (result === "Payment" || result === "payment") {
+                products.forEach((product) => {
+                    if (product.cart) {
+                        toggleCart(product);
+                    }
+                });
+                console.log("Carrito vaciado");
+                loadMain();
+            }
         });
     }
 
@@ -603,12 +617,10 @@ const loadFooter = () => {
 
     // load main
     search.addEventListener("pointerdown", () => {
-        
         loadMain();
     });
 
     // add search menu
-    
     try {
         new webkitSpeechRecognition();
         const searchByVoice = document.createElement("img");
