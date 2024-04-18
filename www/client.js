@@ -540,9 +540,6 @@ function getProductInfoContent(product) {
 
     product_info_image.addEventListener("pointerup", () => {
         clearTimeout(pressTimeout);
-    });
-
-    product_info_image.addEventListener("pointerup", () => {
         click_count++;
         if (click_count == 1) {
             timer = setTimeout(() => {
